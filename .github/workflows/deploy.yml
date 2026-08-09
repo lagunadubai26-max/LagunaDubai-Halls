@@ -18,3 +18,4 @@ jobs:
           publish_dir: src
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
+pages: legacy build
