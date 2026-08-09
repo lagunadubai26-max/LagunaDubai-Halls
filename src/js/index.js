@@ -52,19 +52,6 @@ function monthPrefix(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1
       <span class="muted" style="font-size:11px">${escapeHtml(p.note || '')}</span>
     </div>`).join('') : '<div class="empty">لا توجد مدفوعات</div>';
 
-  // reviews
-  const revs = await REVIEWS.get();
-  const revEl = document.getElementById('revList');
-  const top = revs.slice(0, 6);
-  revEl.innerHTML = top.length ? top.map(r => {
-    const low = Number(r.rating) < 3;
-    return `<div class="rev" style="margin-bottom:8px">
-      <div class="rev-head"><b>${escapeHtml(r.reviewerName)}</b><span class="stars ${low ? 'low' : ''}">${'★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 1)))}</span></div>
-      <p>${escapeHtml(r.comment)}</p>
-      <div class="meta">${r.createdAt ? new Date(r.createdAt.toMillis ? r.createdAt.toMillis() : r.createdAt).toLocaleDateString('ar-EG') : ''}</div>
-    </div>`;
-  }).join('') : '<div class="empty">لا توجد تقييمات بعد</div>';
-
   // month status
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const bookedDays = new Set(mBookings.map(b => b.date)).size;
