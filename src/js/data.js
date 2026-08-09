@@ -156,7 +156,11 @@ const DB = {
       }
     }
 
-    if (users.find(u => u.role === 'SuperAdmin')) return;
+    const superUser = users.find(u => u.role === 'SuperAdmin');
+    if (superUser) {
+      if (superUser.hallId) await this.users.update(superUser.id, { hallId: null });
+      return;
+    }
     const uid = FB.getUid();
     const adminHashed = await PASSWORD_UTILS.hash('admin123');
     await this.users.add({

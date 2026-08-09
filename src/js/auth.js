@@ -30,7 +30,8 @@
       const session = {
         id: user.id, email: user.email, name: user.name, role: user.role,
         hallId: user.role === 'SuperAdmin' ? null : user.hallId,
-        hallName: user.role === 'SuperAdmin' ? null : (hall ? hall.name : '')
+        hallName: user.role === 'SuperAdmin' ? null : (hall ? hall.name : ''),
+        emoji: user.role === 'SuperAdmin' ? null : (hall ? (hall.emoji || '🏛️') : '')
       };
       DB.session.set(session);
       const now = Date.now();

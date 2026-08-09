@@ -17,6 +17,7 @@
       card.onclick = () => {
         stored.hallId = h.id;
         stored.hallName = h.name;
+        stored.emoji = h.emoji || '🏛️';
         DB.session.set(stored);
         window.location.href = 'index.html';
       };
