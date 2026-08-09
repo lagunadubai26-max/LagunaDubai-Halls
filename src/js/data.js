@@ -125,34 +125,50 @@ const DB = {
 
   isSuper() { const u = this.session.get(); return u && u.role === 'SuperAdmin'; },
 
-  // ── Bootstrap: القاعات الافتراضية + أول مستخدم ──
+  // ── Bootstrap: قاعات بحسابات مستقلة + مستخدم النظام ──
   async seed() {
     const DEFAULT_HALLS = [
-      { id: 'h1', name: 'القاعة الرئيسية', emoji: '🏛️', address: '', phone: '', active: 1 },
       { id: 'h2', name: 'قاعة روز', emoji: '🌹', address: '', phone: '', active: 1 },
       { id: 'h3', name: 'قاعة سكرة', emoji: '🎉', address: '', phone: '', active: 1 },
       { id: 'h4', name: 'قاعة المركب', emoji: '⛵', address: '', phone: '', active: 1 }
     ];
+    const DEFAULT_MANAGERS = [
+      { email: 'rose@laguna.com', pass: 'rose123', name: 'مدير قاعة روز', hallId: 'h2' },
+      { email: 'sukra@laguna.com', pass: 'sukra123', name: 'مدير قاعة سكرة', hallId: 'h3' },
+      { email: 'markab@laguna.com', pass: 'markab123', name: 'مدير قاعة المركب', hallId: 'h4' }
+    ];
+
     const existingHalls = await this.halls.all();
     for (const h of DEFAULT_HALLS) {
       if (!existingHalls.find(x => x.id === h.id)) await this.halls.add(h);
     }
+    if (existingHalls.find(x => x.id === 'h1')) await this.halls.remove('h1');
 
     const users = await this.users.all();
-    if (users.length > 0) return;
+    for (const m of DEFAULT_MANAGERS) {
+      if (!users.find(u => (u.email || '').toLowerCase() === m.email)) {
+        await this.users.add({
+          id: 'm_' + m.hallId,
+          email: m.email, name: m.name,
+          password: await PASSWORD_UTILS.hash(m.pass),
+          role: 'HallManager', hallId: m.hallId, active: 1
+        });
+      }
+    }
+
+    if (users.find(u => u.role === 'SuperAdmin')) return;
     const uid = FB.getUid();
-    const hallId = 'h1';
     const adminHashed = await PASSWORD_UTILS.hash('admin123');
     await this.users.add({
       id: 'u1', email: 'admin@laguna.com', name: 'مدير النظام',
-      password: adminHashed, role: 'SuperAdmin', hallId, active: 1
+      password: adminHashed, role: 'SuperAdmin', hallId: null, active: 1
     });
     if (uid) {
       try {
         const snap = await FB.getDb().collection('user_mappings').doc(uid).get();
         if (!snap.exists) {
           await FB.getDb().collection('user_mappings').doc(uid).set({
-            userId: 'u1', role: 'SuperAdmin', hallId, email: 'admin@laguna.com', name: 'مدير النظام'
+            userId: 'u1', role: 'SuperAdmin', hallId: null, email: 'admin@laguna.com', name: 'مدير النظام'
           });
         }
       } catch (e) { console.warn('[seed] mapping:', e.message); }
