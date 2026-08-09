@@ -5,12 +5,19 @@
   const hallId = u.hallId;
 
   const ACTION_AR = {
+    login: 'تسجيل دخول',
     booking_create: 'حجز جديد',
     booking_update: 'تعديل حجز',
     booking_delete: 'حذف حجز',
     payment_create: 'تسجيل دفعة',
     payment_delete: 'حذف دفعة',
+    package_create: 'إضافة باقة',
+    package_update: 'تعديل باقة',
+    addon_create: 'إضافة خدمة',
+    addon_update: 'تعديل خدمة',
+    expense_create: 'تسجيل مصروف',
     settings_terms_update: 'تعديل شروط العقد',
+    settings_restore: 'استعادة نسخة احتياطية',
     password_change: 'تغيير كلمة مرور',
     seed: 'تهيئة النظام',
     hall_create: 'إضافة قاعة',
@@ -18,11 +25,16 @@
     hall_delete: 'حذف قاعة'
   };
   const ACTION_CLS = {
+    login: 'reserved',
     booking_create: 'confirmed',
     booking_update: 'reserved',
     booking_delete: 'canceled',
     payment_create: 'completed',
     payment_delete: 'canceled',
+    package_create: 'confirmed',
+    addon_create: 'confirmed',
+    expense_create: 'pending',
+    settings_restore: 'pending',
     password_change: 'pending',
     seed: 'reserved'
   };
