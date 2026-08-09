@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام قاعات — الحجوزات</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/role-head.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand"><div class="logo">🏛️</div><h1>نظام <b>قاعات</b><small>لاجونا دبي</small></h1></div>
+      <nav>
+        <a href="index.html"><i class="fa-solid fa-chart-line"></i><span>لوحة التحكم</span></a>
+        <a href="bookings.html" class="active"><i class="fa-solid fa-calendar-days"></i><span>الحجوزات</span></a>
+        <a href="contracts.html"><i class="fa-solid fa-file-signature"></i><span>العقود</span></a>
+        <a href="packages.html" class="admin-only"><i class="fa-solid fa-box-open"></i><span>الباقات</span></a>
+        <a href="addons.html" class="admin-only"><i class="fa-solid fa-plus-circle"></i><span>الإضافات</span></a>
+        <a href="payments.html"><i class="fa-solid fa-money-bill-wave"></i><span>المدفوعات</span></a>
+        <a href="hall-expenses.html"><i class="fa-solid fa-receipt"></i><span>مصروفات الأفراح</span></a>
+        <a href="reports.html" class="no-employee"><i class="fa-solid fa-chart-simple"></i><span>التقارير</span></a>
+        <a href="reviews.html"><i class="fa-solid fa-star"></i><span>تقييمات العملاء</span></a>
+        <a href="halls.html" class="super-only"><i class="fa-solid fa-building-columns"></i><span>إدارة القاعات</span></a>
+        <a href="settings.html" class="admin-only"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></a>
+      </nav>
+      <div class="spacer"></div>
+      <div class="profile">
+        <div class="avatar" id="sidebarAvatar">?</div>
+        <div><h4 id="sidebarName">...</h4><span id="sidebarRole">...</span><span id="sidebarHall" class="muted" style="font-size:11px"></span></div>
+        <button class="btn-hall" id="hallSwitchBtn" title="تبديل القاعة"><i class="fa-solid fa-right-left"></i></button>
+        <a href="auth.html" class="logout" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i></a>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <h2>الحجوزات والتقويم</h2>
+        <div class="spacer"></div>
+        <div class="hall-chip" id="hallChip"></div>
+        <button class="btn" id="newBookingBtn"><i class="fa-solid fa-plus"></i> حجز جديد</button>
+      </div>
+
+      <div class="card">
+        <div class="cal-nav">
+          <button class="btn ghost sm" id="calPrev"><i class="fa-solid fa-chevron-right"></i></button>
+          <h3 id="calTitle">—</h3>
+          <button class="btn ghost sm" id="calNext"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="spacer"></div>
+          <button class="btn ghost sm" id="calToday">اليوم</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <div class="card mt">
+        <h3 class="title"><i class="fa-solid fa-list"></i> سجل الحجوزات</h3>
+        <div class="filters">
+          <input type="date" id="fFrom" placeholder="من">
+          <input type="date" id="fTo" placeholder="إلى">
+          <select id="fStatus">
+            <option value="all">كل الحالات</option>
+            <option value="reserved">محجوز</option>
+            <option value="confirmed">مؤكد</option>
+            <option value="completed">منتهي</option>
+            <option value="canceled">ملغي</option>
+          </select>
+          <button class="btn ghost sm" id="fYear">عرض سنة كاملة</button>
+          <button class="btn ghost sm" id="fMonth">هذا الشهر</button>
+          <div class="spacer"></div>
+          <span class="muted" id="fCount" style="font-size:13px"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="bookTable">
+            <thead><tr><th>العميل</th><th>التاريخ</th><th>الباقة</th><th>إضافات</th><th>العربون</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="bookBody"></tbody>
+          </table>
+          <div class="empty" id="bookEmpty" style="display:none">لا توجد حجوزات في هذا النطاق</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-bg" id="bkModal">
+    <div class="modal">
+      <h3 id="bkModalTitle">حجز جديد <i class="fa-solid fa-xmark close" id="bkClose"></i></h3>
+      <div class="form-row">
+        <div class="field"><label>اسم العميل</label><input id="bkClient" placeholder="اسم العريس / العميل"></div>
+        <div class="field"><label>رقم الهاتف</label><input id="bkPhone" placeholder="010..."></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>تاريخ الفرح</label><input type="date" id="bkDate"></div>
+        <div class="field"><label>الحالة</label><select id="bkStatus">
+          <option value="reserved">محجوز</option>
+          <option value="confirmed">مؤكد</option>
+          <option value="completed">منتهي</option>
+          <option value="canceled">ملغي</option>
+        </select></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>الباقة</label><select id="bkPackage"></select></div>
+        <div class="field"><label>العربون (مقدم)</label><input type="number" id="bkDeposit" placeholder="0"></div>
+      </div>
+      <div class="field"><label>الإضافات المطلوبة</label><div class="checkbox-list" id="bkAddons"></div></div>
+      <div class="form-row">
+        <div class="field"><label>الإجمالي (يُحتسب تلقائياً — قابل للتعديل)</label><input type="number" id="bkTotal"></div>
+        <div class="field"><label>طريقة دفع العربون</label><select id="bkMethod"><option value="cash">نقدي</option><option value="transfer">تحويل</option></select></div>
+      </div>
+      <div class="field"><label>ملاحظات</label><textarea id="bkNotes" rows="2"></textarea></div>
+      <div class="flex"><div class="spacer"></div><button class="btn" id="bkSave">حفظ الحجز</button></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase-client.js"></script>
+  <script src="js/sanitize.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/guard.js"></script>
+  <script src="js/role.js"></script>
+  <script src="js/bookings.js"></script>
+</body>
+</html>

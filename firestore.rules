@@ -1,0 +1,129 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function getUserMapping() {
+      return get(/databases/$(database)/documents/user_mappings/$(request.auth.uid)).data;
+    }
+
+    function userRole() {
+      return getUserMapping().role;
+    }
+
+    function userHall() {
+      return getUserMapping().hallId;
+    }
+
+    function isSuper() {
+      return isAuth() && userRole() == 'SuperAdmin';
+    }
+
+    function isManager() {
+      return isAuth() && userRole() == 'HallManager';
+    }
+
+    function isAccountant() {
+      return isAuth() && userRole() == 'Accountant';
+    }
+
+    function isEmployee() {
+      return isAuth() && userRole() == 'Employee';
+    }
+
+    function isStaff() {
+      return isSuper() || isManager() || isAccountant() || isEmployee();
+    }
+
+    function noUsers() {
+      return !exists(/databases/$(database)/documents/users/u1);
+    }
+
+    // ── Hall-scoped access helpers ──
+    function inUserHall(resource) {
+      return resource.data.hallId != null && resource.data.hallId == userHall();
+    }
+
+    function readHallScoped(resource) {
+      return isSuper() || (isStaff() && inUserHall(resource));
+    }
+
+    function writeHallScoped(requestRes) {
+      return isSuper() || (isStaff() && requestRes.data.hallId != null && requestRes.data.hallId == userHall());
+    }
+
+    // ── halls: أي مستخدم مصادق يقرأ، الكتابة لسوبر أدمن (مع bootstrap) ──
+    match /halls/{hallId} {
+      allow read: if isAuth();
+      allow write: if isSuper() || (isAuth() && noUsers());
+    }
+
+    // ── users: القراءة للمستخدمين بنفس القاعة، الكتابة لسوبر أدمن (مع bootstrap) ──
+    match /users/{docId} {
+      allow read: if isAuth() && (isSuper() || getUserMapping() != null && userHall() == resource.data.hallId);
+      allow write: if isSuper() || (isAuth() && noUsers());
+    }
+
+    // ── user_mappings: المستخدم يقرأ mapping نفسه، البوتستراب للـ SuperAdmin الأول ──
+    match /user_mappings/{uid} {
+      allow read: if isAuth() && request.auth.uid == uid;
+      allow create: if isAuth() && (request.auth.uid == uid && (isStaff() || noUsers()));
+      allow update, delete: if isAuth() && (request.auth.uid == uid || isSuper());
+    }
+
+    // ── settings: شروط العقد والإعدادات ──
+    match /settings/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    // ── الباقات والإضافات والعملاء والحجوزات والعقود والمدفوعات والمصروفات وسجل التدقيق ──
+    match /packages/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    match /addons/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    match /clients/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    match /bookings/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    match /contracts/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    match /payments/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    match /hall_expenses/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    match /audit_logs/{docId} {
+      allow read, update, delete: if isAuth() && readHallScoped(resource);
+      allow create: if isAuth() && writeHallScoped(request.resource);
+    }
+
+    // ── Catch-all: deny anything not explicitly listed ──
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
