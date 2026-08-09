@@ -1,0 +1,28 @@
+.auth-body {
+  display: grid; place-items: center; min-height: 100vh; padding: 20px;
+  background:
+    radial-gradient(700px 420px at 15% 0%, rgba(212,166,67,.16), transparent 60%),
+    radial-gradient(600px 400px at 100% 100%, rgba(200,133,46,.12), transparent 55%),
+    var(--bg);
+}
+.auth-wrap { width: 100%; max-width: 400px; }
+.auth-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+  padding: 34px 30px; box-shadow: var(--shadow);
+  animation: fadeUp .5s ease;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.auth-logo {
+  width: 68px; height: 68px; border-radius: 18px; margin: 0 auto 14px; display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--amber), var(--gold)); font-size: 34px;
+  box-shadow: 0 8px 22px rgba(212,166,67,.4);
+}
+.auth-card h1 { text-align: center; font-size: 24px; font-weight: 800; }
+.auth-card h1 .gold { color: var(--gold); }
+.auth-sub { text-align: center; color: var(--muted); font-size: 13px; margin: 4px 0 22px; }
+.auth-btn { margin-top: 6px; }
+.auth-msg { display: none; padding: 10px 12px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; text-align: center; }
+.auth-msg.error { display: block; background: rgba(224,92,92,.12); border: 1px solid var(--red); color: var(--red); }
+.auth-msg.loading { display: block; background: rgba(212,166,67,.12); border: 1px solid var(--gold); color: var(--gold2); }
+.auth-foot { margin-top: 18px; text-align: center; font-size: 12px; color: var(--muted); }
+.auth-foot b { color: var(--gold2); }
