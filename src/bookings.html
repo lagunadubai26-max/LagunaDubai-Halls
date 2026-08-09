@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=8">
-  <script src="js/role-head.js?v=8"></script>
+  <link rel="stylesheet" href="css/style.css?v=9">
+  <script src="js/role-head.js?v=9"></script>
 </head>
 <body>
   <div class="layout">
@@ -85,7 +85,7 @@
 
   <div class="modal-bg" id="bkModal">
     <div class="modal">
-      <h3 id="bkModalTitle">حجز جديد <i class="fa-solid fa-xmark close" id="bkClose"></i></h3>
+      <h3><span id="bkModalTitle">حجز جديد</span> <i class="fa-solid fa-xmark close" id="bkClose"></i></h3>
       <div class="form-row">
         <div class="field"><label>اسم العميل</label><input id="bkClient" placeholder="اسم العريس / العميل"></div>
         <div class="field"><label>رقم الهاتف</label><input id="bkPhone" placeholder="010..."></div>
@@ -113,16 +113,27 @@
     </div>
   </div>
 
+  <div class="modal-bg" id="delModal">
+    <div class="modal" style="max-width:400px">
+      <h3>تأكيد حذف الحجز <i class="fa-solid fa-xmark close" id="delClose"></i></h3>
+      <p id="delText" style="font-size:14px;line-height:1.9;color:var(--primary)"></p>
+      <div class="flex mt"><div class="spacer"></div>
+        <button class="btn ghost" id="delCancel"><i class="fa-solid fa-xmark"></i> إلغاء</button>
+        <button class="btn danger" id="delYes"><i class="fa-solid fa-trash"></i> حذف نهائي</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast"></div>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js?v=8"></script>
-  <script src="js/firebase-client.js?v=8"></script>
-  <script src="js/sanitize.js?v=8"></script>
-  <script src="js/data.js?v=8"></script>
-  <script src="js/guard.js?v=8"></script>
-  <script src="js/role.js?v=8"></script>
-  <script src="js/bookings.js?v=8"></script>
+  <script src="js/firebase-config.js?v=9"></script>
+  <script src="js/firebase-client.js?v=9"></script>
+  <script src="js/sanitize.js?v=9"></script>
+  <script src="js/data.js?v=9"></script>
+  <script src="js/guard.js?v=9"></script>
+  <script src="js/role.js?v=9"></script>
+  <script src="js/bookings.js?v=9"></script>
 </body>
 </html>

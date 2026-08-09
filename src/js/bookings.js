@@ -115,7 +115,7 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
         const b = bookings.find(x => x.id === btn.dataset.id);
         if (!b) return;
         if (btn.dataset.act === 'edit') openBooking(null, b);
-        else if (btn.dataset.act === 'del' && confirm('حذف هذا الحجز؟')) removeBooking(b);
+        else if (btn.dataset.act === 'del') askDelete(b);
       };
     });
   }
@@ -226,11 +226,32 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
       await DB.bookings.remove(b.id);
       const c = (await DB.contracts.all()).find(x => x.bookingId === b.id);
       if (c) await DB.contracts.remove(c.id);
+      const pays = (await DB.payments.all()).filter(p => p.bookingId === b.id);
+      for (const p of pays) await DB.payments.remove(p.id);
       await DB.audit.log('booking_delete', { id: b.id, clientName: b.clientName });
-      toast('تم حذف الحجز');
+      toast('تم حذف الحجز والعقد والدفعات المرتبطة');
       await refresh();
     } catch (e) { toast('خطأ: ' + e.message, 'error'); }
   }
+
+  // ── نافذة تأكيد الحذف ──
+  let pendingDelete = null;
+  function askDelete(b) {
+    pendingDelete = b;
+    document.getElementById('delText').textContent =
+      'هل تريد حذف حجز "' + b.clientName + '" بتاريخ ' + b.date + '؟' +
+      (b.status === 'canceled' ? '' : ' سيتم حذف العقد والدفعات المرتبطة به نهائياً.');
+    document.getElementById('delModal').classList.add('show');
+  }
+  document.getElementById('delYes').onclick = () => {
+    if (pendingDelete) removeBooking(pendingDelete);
+    document.getElementById('delModal').classList.remove('show');
+    pendingDelete = null;
+  };
+  const closeDel = () => { document.getElementById('delModal').classList.remove('show'); pendingDelete = null; };
+  document.getElementById('delCancel').onclick = closeDel;
+  document.getElementById('delClose').onclick = closeDel;
+  document.getElementById('delModal').onclick = e => { if (e.target.id === 'delModal') closeDel(); };
 
   document.getElementById('calPrev').onclick = () => { viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } renderCalendar(); };
   document.getElementById('calNext').onclick = () => { viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } renderCalendar(); };
