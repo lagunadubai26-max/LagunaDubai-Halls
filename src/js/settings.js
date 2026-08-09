@@ -51,4 +51,58 @@
       document.getElementById('setPhone').value = h.phone || '';
     }
   })();
+
+  // ── النسخ الاحتياطي والاستعادة ──
+  const BACKUP_COLLECTIONS = ['bookings', 'payments', 'contracts', 'packages', 'addons', 'clients', 'hall_expenses', 'halls', 'users', 'settings', 'audit_logs'];
+
+  document.getElementById('backupBtn').onclick = async () => {
+    toast('جاري تجميع البيانات...');
+    const data = { exportedAt: new Date().toISOString(), app: 'halls-system' };
+    for (const c of BACKUP_COLLECTIONS) {
+      try { data[c] = await FB.getCollection(c); } catch (e) { console.warn('[backup]', c, e); data[c] = []; }
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'backup-' + DB.todayKey() + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('تم تصدير النسخة الاحتياطية');
+  };
+
+  document.getElementById('restoreBtn').onclick = () => document.getElementById('restoreFile').click();
+  document.getElementById('restoreFile').onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) { return; }
+    let data;
+    try { data = JSON.parse(await file.text()); }
+    catch (err) { toast('ملف غير صالح — يجب أن يكون JSON', 'error'); e.target.value = ''; return; }
+    if (!confirm('سيتم استبدال كل البيانات الحالية بمحتوى النسخة. متابعة؟')) { e.target.value = ''; return; }
+    const db = FB.getDb();
+    const pending = [];
+    const flush = async () => {
+      const batch = db.batch();
+      for (const item of pending) batch.set(db.collection(item.c).doc(item.id), item.rest);
+      await batch.commit();
+    };
+    let count = 0;
+    try {
+      for (const c of BACKUP_COLLECTIONS) {
+        const docs = data[c];
+        if (!Array.isArray(docs)) continue;
+        for (const doc of docs) {
+          const { id, ...rest } = doc;
+          pending.push({ c, id, rest });
+          count++;
+          if (pending.length >= 400) { await flush(); pending.length = 0; }
+        }
+      }
+      if (pending.length) await flush();
+      await DB.audit.log('settings_restore', { count });
+      toast('تمت الاستعادة: ' + count + ' سجل');
+    } catch (err) {
+      toast('خطأ أثناء الاستعادة: ' + err.message, 'error');
+    }
+    e.target.value = '';
+  };
 })();

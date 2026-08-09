@@ -102,6 +102,7 @@ const DB = {
   },
 
   audit: {
+    async all() { return await FB.getCollection('audit_logs'); },
     async log(action, details) {
       const u = DB.session.get();
       const hallId = u && u.hallId ? u.hallId : (details && details.hallId ? details.hallId : null);

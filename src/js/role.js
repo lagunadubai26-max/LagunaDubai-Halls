@@ -6,7 +6,7 @@
   var page = window.location.pathname.split('/').pop();
   var superOnly = ['halls.html'];
   var adminOnly = ['settings.html', 'packages.html', 'addons.html'];
-  var employeeRestricted = ['reports.html', 'halls.html', 'settings.html', 'packages.html', 'addons.html'];
+  var employeeRestricted = ['reports.html', 'audit.html', 'halls.html', 'settings.html', 'packages.html', 'addons.html'];
 
   if (user.role !== 'SuperAdmin' && superOnly.includes(page)) { window.location.replace('index.html'); return; }
   if ((user.role === 'Accountant' || user.role === 'Employee') && adminOnly.includes(page)) { window.location.replace('index.html'); return; }

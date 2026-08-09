@@ -59,7 +59,7 @@
         </tr>`;
       }).join('');
       body.querySelectorAll('.icon-btn').forEach(b => b.onclick = () => {
-        if (confirm('حذف هذه الدفعة؟')) DB.payments.remove(b.dataset.id).then(() => { toast('تم الحذف'); refresh(); });
+        if (confirm('حذف هذه الدفعة؟')) DB.payments.remove(b.dataset.id).then(() => { DB.audit.log('payment_delete', { id: b.dataset.id }); toast('تم الحذف'); refresh(); });
       });
     }
 

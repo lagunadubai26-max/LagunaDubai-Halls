@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>نظام قاعات — مصروفات الأفراح</title>
+  <title>نظام قاعات — سجل الحركات</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
@@ -19,9 +19,9 @@
         <a href="packages.html" class="admin-only"><i class="fa-solid fa-box-open"></i><span>الباقات</span></a>
         <a href="addons.html" class="admin-only"><i class="fa-solid fa-plus-circle"></i><span>الإضافات</span></a>
         <a href="payments.html"><i class="fa-solid fa-money-bill-wave"></i><span>المدفوعات</span></a>
-        <a href="hall-expenses.html" class="active"><i class="fa-solid fa-receipt"></i><span>مصروفات الأفراح</span></a>
+        <a href="hall-expenses.html"><i class="fa-solid fa-receipt"></i><span>مصروفات الأفراح</span></a>
         <a href="reports.html" class="no-employee"><i class="fa-solid fa-chart-simple"></i><span>التقارير</span></a>
-        <a href="audit.html" class="no-employee"><i class="fa-solid fa-clock-rotate-left"></i><span>سجل الحركات</span></a>
+        <a href="audit.html" class="active no-employee"><i class="fa-solid fa-clock-rotate-left"></i><span>سجل الحركات</span></a>
         <a href="halls.html" class="super-only"><i class="fa-solid fa-building-columns"></i><span>إدارة القاعات</span></a>
         <a href="settings.html" class="admin-only"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></a>
       </nav>
@@ -34,42 +34,33 @@
       </div>
     </aside>
     <main class="main">
-      <div class="topbar"><h2>مصروفات الأفراح</h2><div class="spacer"></div><div class="hall-chip" id="hallChip"></div>
-        <button class="btn" id="addBtn"><i class="fa-solid fa-plus"></i> إضافة مصروف</button></div>
-      <p class="muted" style="margin-bottom:14px;font-size:13px">مصروفات كل فرح: معدات مملوكة للقاعة أو مؤجرة (مولد، ترابيزات، كراسي، تكييفات صحراوية...).</p>
-      <div class="grid cols-2">
-        <div class="card stat"><div class="ic gold"><i class="fa-solid fa-gears"></i></div><div><h3>إجمالي المصروفات</h3><b id="tTotal">0</b></div></div>
-        <div class="card stat"><div class="ic blue"><i class="fa-solid fa-truck-ramp-box"></i></div><div><h3>المؤجر (خارجي)</h3><b id="tRent">0</b></div></div>
-      </div>
-      <div class="card mt">
+      <div class="topbar"><h2>سجل الحركات</h2><div class="spacer"></div><div class="hall-chip" id="hallChip"></div></div>
+      <div class="card">
         <div class="filters">
-          <select id="fBooking"><option value="all">كل الأفراح</option></select>
-          <input type="date" id="fFrom"><input type="date" id="fTo">
-          <div class="spacer"></div><span class="muted" id="fCount"></span>
+          <input type="date" id="fFrom" placeholder="من">
+          <input type="date" id="fTo" placeholder="إلى">
+          <select id="fAction">
+            <option value="all">كل الحركات</option>
+            <option value="booking_create">حجز جديد</option>
+            <option value="booking_update">تعديل حجز</option>
+            <option value="booking_delete">حذف حجز</option>
+            <option value="payment_create">تسجيل دفعة</option>
+            <option value="payment_delete">حذف دفعة</option>
+            <option value="settings_terms_update">تعديل الشروط</option>
+            <option value="password_change">تغيير كلمة مرور</option>
+          </select>
+          <div class="spacer"></div>
+          <span class="muted" id="aCount" style="font-size:13px"></span>
         </div>
         <div class="table-wrap">
           <table class="table">
-            <thead><tr><th>الفرح</th><th>البند</th><th>التصنيف</th><th>القيمة</th><th>التاريخ</th><th></th></tr></thead>
-            <tbody id="eBody"></tbody>
+            <thead><tr><th>الوقت</th><th>المستخدم</th><th>الحركة</th><th>التفاصيل</th><th>القاعة</th></tr></thead>
+            <tbody id="aBody"></tbody>
           </table>
-          <div class="empty" id="eEmpty" style="display:none">لا توجد مصروفات</div>
+          <div class="empty" id="aEmpty" style="display:none">لا توجد حركات</div>
         </div>
       </div>
     </main>
-  </div>
-  <div class="modal-bg" id="modal">
-    <div class="modal">
-      <h3>إضافة مصروف <i class="fa-solid fa-xmark close" id="close"></i></h3>
-      <div class="field"><label>الفرح / الحجز</label><select id="eBooking"></select></div>
-      <div class="field"><label>البند</label><input id="eItem" placeholder="مثال: مولد كهرباء"></div>
-      <div class="form-row">
-        <div class="field"><label>التصنيف</label><select id="eCat"><option value="rented">مؤجر (خارجي)</option><option value="owned">مملوك للقاعة</option></select></div>
-        <div class="field"><label>القيمة (ج.م)</label><input type="number" id="eAmount"></div>
-      </div>
-      <div class="field"><label>التاريخ</label><input type="date" id="eDate"></div>
-      <div class="field"><label>ملاحظة</label><input id="eNote"></div>
-      <div class="flex"><div class="spacer"></div><button class="btn" id="save">حفظ</button></div>
-    </div>
   </div>
   <div id="toast"></div>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -81,6 +72,6 @@
   <script src="js/data.js?v=11"></script>
   <script src="js/guard.js?v=11"></script>
   <script src="js/role.js?v=11"></script>
-  <script src="js/hall-expenses.js?v=11"></script>
+  <script src="js/audit.js?v=11"></script>
 </body>
 </html>
