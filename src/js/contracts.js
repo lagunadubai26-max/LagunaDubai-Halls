@@ -52,7 +52,7 @@
     const phone = hall ? hall.phone : '';
     document.getElementById('cSheet').innerHTML = `
       <h2>عقد حجز قاعة أفراح</h2>
-      <div class="sub">${escapeHtml(hallName)} — لاجونا دبي${address ? ' · ' + escapeHtml(address) : ''}${phone ? ' · ' + escapeHtml(phone) : ''}</div>
+      <div class="sub">${escapeHtml(hallName)}${address ? ' · ' + escapeHtml(address) : ''}${phone ? ' · ' + escapeHtml(phone) : ''}</div>
       <div class="cnum">رقم العقد: <b>${escapeHtml(c.id)}</b><span>تاريخ الإصدار: ${today}</span></div>
       <table>
         <tr><th>اسم العميل</th><td>${escapeHtml(c.clientName)}</td><th>رقم الهاتف</th><td>${escapeHtml(c.clientPhone || '—')}</td></tr>
@@ -61,7 +61,7 @@
         <tr><th>العربون (مقدم)</th><td>${DB.fmt(c.deposit)}</td><th>القيمة الإجمالية</th><td>${DB.fmt(c.total)}</td></tr>
         <tr><th>المحصل حتى اليوم</th><td>${DB.fmt(paid)}</td><th>المتبقي على العميل</th><td><b>${DB.fmt(remaining)}</b></td></tr>
       </table>
-      <div class="paybox">سند استلام: أقر أنا الموقع أدناه (العميل) بدفع مبلغ <b>${DB.fmt(c.deposit)}</b> كعربون، ويتعهد بسداد المبلغ المتبقي <b>${DB.fmt(remaining)}</b> قبل موعد الفرح.</div>
+      <div class="paybox">سند استلام: أقر أنا الموقع أدناه الأست /<b>${escapeHtml(c.clientName)}</b> بدفع مبلغ <b>${DB.fmt(c.deposit)}</b> كعربون، ويتعهد بسداد المبلغ المتبقي <b>${DB.fmt(remaining)}</b> قبل موعد الفرح.</div>
       ${terms ? `<div class="terms"><b>الشروط والأحكام:</b>
 ${escapeHtml(terms)}</div>` : ''}
       ${c.customNotes ? `<div class="terms"><b>ملاحظات:</b> ${escapeHtml(c.customNotes)}</div>` : ''}
