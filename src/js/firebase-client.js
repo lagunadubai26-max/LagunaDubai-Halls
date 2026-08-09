@@ -75,6 +75,7 @@ const FB = (() => {
 
   function getUid() { return uid; }
   function getDb() { return db; }
+  function clockNow() { return new Date(); }
 
-  return { getCollection, addDoc, updateDoc, removeDoc, onCollection, runTransaction, getUid, getDb };
+  return { getCollection, addDoc, updateDoc, removeDoc, onCollection, runTransaction, getUid, getDb, ensure, clockNow };
 })();
