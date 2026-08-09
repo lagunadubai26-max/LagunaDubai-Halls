@@ -19,7 +19,7 @@
     grid.innerHTML = halls.map(h => {
       const managers = users.filter(x => x.hallId === h.id && x.role === 'HallManager');
       return `<div class="card">
-        <h3 class="title"><i class="fa-solid fa-building-columns"></i> ${escapeHtml(h.name)}</h3>
+        <h3 class="title"><i class="fa-solid fa-building-columns"></i> ${escapeHtml(h.emoji || '🏛️')} ${escapeHtml(h.name)}</h3>
         <p class="muted" style="font-size:13px">${escapeHtml(h.address || '')} ${h.phone ? ' · ' + escapeHtml(h.phone) : ''}</p>
         <div class="muted" style="font-size:12px;margin:8px 0">المدراء:
           ${managers.length ? managers.map(m => `<span class="badge reserved" style="margin-left:4px">${escapeHtml(m.email)}</span>`).join('') : '<span>لا يوجد</span>'}
@@ -47,6 +47,7 @@
     editingHall = h ? h.id : null;
     document.getElementById('modalTitle').textContent = h ? 'تعديل قاعة' : 'إضافة قاعة';
     document.getElementById('hName').value = h ? h.name : '';
+    document.getElementById('hEmoji').value = h ? (h.emoji || '') : '';
     document.getElementById('hAddress').value = h ? (h.address || '') : '';
     document.getElementById('hPhone').value = h ? (h.phone || '') : '';
     document.getElementById('hEmail').value = '';
@@ -78,7 +79,7 @@
     try {
       if (editingHall) {
         const h = existing.find(x => x.id === editingHall);
-        await DB.halls.update(editingHall, { name, address: document.getElementById('hAddress').value.trim(), phone: document.getElementById('hPhone').value.trim() });
+        await DB.halls.update(editingHall, { name, emoji: document.getElementById('hEmoji').value.trim(), address: document.getElementById('hAddress').value.trim(), phone: document.getElementById('hPhone').value.trim() });
         if (email && pass) {
           if ((await DB.users.all()).some(x => x.email && x.email.toLowerCase() === email)) return toast('هذا البريد مستخدم مسبقاً', 'error');
           await DB.users.add({ id: Date.now().toString(36), email, name: 'مدير ' + name, password: await PASSWORD_UTILS.hash(pass), role: 'HallManager', hallId: editingHall, active: 1 });
@@ -87,7 +88,7 @@
         await DB.audit.log('hall_update', { id: editingHall, name });
       } else {
         const id = Date.now().toString(36);
-        await DB.halls.add({ id, name, address: document.getElementById('hAddress').value.trim(), phone: document.getElementById('hPhone').value.trim(), active: 1 });
+        await DB.halls.add({ id, name, emoji: document.getElementById('hEmoji').value.trim(), address: document.getElementById('hAddress').value.trim(), phone: document.getElementById('hPhone').value.trim(), active: 1 });
         if (email && pass) {
           if ((await DB.users.all()).some(x => x.email && x.email.toLowerCase() === email)) return toast('هذا البريد مستخدم مسبقاً', 'error');
           await DB.users.add({ id: Date.now().toString(36), email, name: 'مدير ' + name, password: await PASSWORD_UTILS.hash(pass), role: 'HallManager', hallId: id, active: 1 });

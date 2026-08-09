@@ -13,7 +13,7 @@
     halls.forEach(h => {
       const card = document.createElement('div');
       card.className = 'hall-pick';
-      card.innerHTML = `<div class="ic">🏛️</div><h3>${escapeHtml(h.name)}</h3><p>${escapeHtml(h.address || '')}</p>`;
+      card.innerHTML = `<div class="ic">${escapeHtml(h.emoji || '🏛️')}</div><h3>${escapeHtml(h.name)}</h3><p>${escapeHtml(h.address || '')}</p>`;
       card.onclick = () => {
         stored.hallId = h.id;
         stored.hallName = h.name;

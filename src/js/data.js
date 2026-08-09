@@ -125,16 +125,23 @@ const DB = {
 
   isSuper() { const u = this.session.get(); return u && u.role === 'SuperAdmin'; },
 
-  // ── Bootstrap: أول مرة يشغّل النظام (لا يوجد مستخدمون) ──
+  // ── Bootstrap: القاعات الافتراضية + أول مستخدم ──
   async seed() {
+    const DEFAULT_HALLS = [
+      { id: 'h1', name: 'القاعة الرئيسية', emoji: '🏛️', address: '', phone: '', active: 1 },
+      { id: 'h2', name: 'قاعة روز', emoji: '🌹', address: '', phone: '', active: 1 },
+      { id: 'h3', name: 'قاعة سكرة', emoji: '🎉', address: '', phone: '', active: 1 },
+      { id: 'h4', name: 'قاعة المركب', emoji: '⛵', address: '', phone: '', active: 1 }
+    ];
+    const existingHalls = await this.halls.all();
+    for (const h of DEFAULT_HALLS) {
+      if (!existingHalls.find(x => x.id === h.id)) await this.halls.add(h);
+    }
+
     const users = await this.users.all();
     if (users.length > 0) return;
     const uid = FB.getUid();
     const hallId = 'h1';
-    const hall = await this.halls.all();
-    if (hall.length === 0) {
-      await this.halls.add({ id: hallId, name: 'القاعة الرئيسية', address: '', phone: '', active: 1 });
-    }
     const adminHashed = await PASSWORD_UTILS.hash('admin123');
     await this.users.add({
       id: 'u1', email: 'admin@laguna.com', name: 'مدير النظام',
