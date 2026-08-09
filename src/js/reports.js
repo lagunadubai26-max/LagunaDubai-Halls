@@ -79,6 +79,56 @@
 
   function setRange(from, to) { document.getElementById('rFrom').value = from || ''; document.getElementById('rTo').value = to || ''; render(); }
 
+  // ── تصدير Excel ──
+  function csvEscape(v) {
+    return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  }
+  function downloadCSV(filename, lines) {
+    const blob = new Blob(['\uFEFF' + lines.map(r => r.map(csvEscape).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  document.getElementById('exportExcelBtn').onclick = () => {
+    const from = document.getElementById('rFrom').value;
+    const to = document.getElementById('rTo').value;
+    const lines = [];
+    lines.push(['تقرير مالي — ' + (u.hallName || 'القاعة')]);
+    lines.push(['الفترة', from || 'الكل', to || 'الكل']);
+    lines.push([]);
+    lines.push(['عدد الأفراح', document.getElementById('rCount').textContent]);
+    lines.push(['إجمالي المحصل', document.getElementById('rCollected').textContent]);
+    lines.push(['العربونات', document.getElementById('rDeposits').textContent]);
+    lines.push(['المصروفات', document.getElementById('rExpenses').textContent]);
+    lines.push(['النقدية', document.getElementById('rCash').textContent]);
+    lines.push(['التحويلات', document.getElementById('rTransfer').textContent]);
+    lines.push(['نتيجة التشغيل', document.getElementById('rNet').textContent]);
+    lines.push([]);
+    lines.push(['التفاصيل الشهرية']);
+    lines.push(['الشهر', 'أفراح', 'محصل', 'مصروفات', 'الصافي']);
+    const months = {};
+    bookings.filter(b => b.status !== 'canceled').forEach(b => { const k = (b.date || '').slice(0, 7); if (k) { months[k] = months[k] || { count: 0, paid: 0, exp: 0 }; months[k].count++; } });
+    payments.forEach(p => { const k = (p.date || '').slice(0, 7); if (k) { months[k] = months[k] || { count: 0, paid: 0, exp: 0 }; months[k].paid += Number(p.amount || 0); } });
+    expenses.forEach(e => { const k = (e.date || '').slice(0, 7); if (k) { months[k] = months[k] || { count: 0, paid: 0, exp: 0 }; months[k].exp += Number(e.amount || 0); } });
+    Object.keys(months).sort().slice(-12).forEach(k => lines.push([monthLabel(k + '-01'), months[k].count, months[k].paid, months[k].exp, months[k].paid - months[k].exp]));
+    lines.push([]);
+    lines.push(['تفاصيل الحجوزات في الفترة']);
+    lines.push(['العميل', 'التاريخ', 'الحالة', 'العقد', 'المحصل']);
+    const paidPer = {};
+    payments.forEach(p => { paidPer[p.bookingId] = (paidPer[p.bookingId] || 0) + Number(p.amount || 0); });
+    const statusAr = { reserved: 'محجوز', confirmed: 'مؤكد', completed: 'منتهي', canceled: 'ملغي' };
+    bookings.filter(b => b.status !== 'canceled' && inRange(b.date, from, to)).sort((a, b) => a.date.localeCompare(b.date))
+      .forEach(b => lines.push([
+        b.clientName, b.date, statusAr[b.status] || b.status,
+        contracts.some(c => c.bookingId === b.id) ? 'نعم' : 'لا', paidPer[b.id] || 0
+      ]));
+    const stamp = DB.todayKey().replace(/-/g, '');
+    downloadCSV('تقرير-' + stamp + '.csv', lines);
+  };
+
   document.getElementById('rMonth').onclick = () => { const n = new Date(); setRange(n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-01', n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate()).padStart(2, '0')); };
   document.getElementById('rYear').onclick = () => { const n = new Date(); setRange(n.getFullYear() + '-01-01', n.getFullYear() + '-12-31'); };
   document.getElementById('rAll').onclick = () => setRange('', '');

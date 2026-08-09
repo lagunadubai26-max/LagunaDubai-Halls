@@ -9,6 +9,7 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
   let bookings = [];
   let packages = [];
   let addons = [];
+  let payments = [];
   let viewYear, viewMonth;
   const DOW = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   let editingId = null;
@@ -27,10 +28,11 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
   function key(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 
   function loadAll() {
-    return Promise.all([DB.bookings.all(), DB.packages.all(), DB.addons.all()]).then(([b, p, a]) => {
+    return Promise.all([DB.bookings.all(), DB.packages.all(), DB.addons.all(), DB.payments.all()]).then(([b, p, a, pay]) => {
       bookings = b.filter(x => x.hallId === hallId);
       packages = p.filter(x => x.hallId === hallId);
       addons = a.filter(x => x.hallId === hallId);
+      payments = pay.filter(x => x.hallId === hallId);
     });
   }
 
@@ -86,7 +88,12 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
     const empty = document.getElementById('bookEmpty');
     if (!list.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none';
-    body.innerHTML = list.map(b => `
+    const paidPer = {};
+    payments.forEach(p => { paidPer[p.bookingId] = (paidPer[p.bookingId] || 0) + Number(p.amount || 0); });
+    body.innerHTML = list.map(b => {
+      const paid = paidPer[b.id] || 0;
+      const rem = Math.max(0, Number(b.total || 0) - paid);
+      return `
       <tr>
         <td><b>${escapeHtml(b.clientName)}</b><div class="muted" style="font-size:11px">${escapeHtml(b.clientPhone || '')}</div></td>
         <td>${new Date(b.date).toLocaleDateString('ar-EG')}</td>
@@ -94,12 +101,15 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
         <td>${(b.addonsIds || []).length}</td>
         <td>${DB.fmt(b.deposit)}</td>
         <td><b>${DB.fmt(b.total)}</b></td>
+        <td>${DB.fmt(paid)}</td>
+        <td><span class="badge ${rem > 0 ? 'reserved' : 'completed'}">${DB.fmt(rem)}</span></td>
         <td><span class="badge ${STATUS_CLS[b.status]}">${STATUS_AR[b.status]}</span></td>
         <td><div class="row-actions">
           <button class="icon-btn" data-act="edit" data-id="${escapeHtml(b.id)}" title="تعديل"><i class="fa-solid fa-pen"></i></button>
           <button class="icon-btn red" data-act="del" data-id="${escapeHtml(b.id)}" title="حذف"><i class="fa-solid fa-trash"></i></button>
         </div></td>
-      </tr>`).join('');
+      </tr>`;
+    });
     body.querySelectorAll('button[data-act]').forEach(btn => {
       btn.onclick = () => {
         const b = bookings.find(x => x.id === btn.dataset.id);
@@ -164,6 +174,15 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
     const notes = document.getElementById('bkNotes').value.trim();
     const paymentMethod = document.getElementById('bkMethod').value;
     const settings = await DB.settings.get();
+
+    // ── منع الحجز المزدوج: نفس القاعة في نفس اليوم ──
+    if (status !== 'canceled') {
+      const all = await DB.bookings.all();
+      const clash = all.find(b =>
+        b.hallId === hallId && b.date === date && b.id !== editingId && b.status !== 'canceled'
+      );
+      if (clash) return toast('⚠️ القاعة محجوزة في هذا اليوم: ' + clash.clientName + ' (' + clash.date + ')', 'error');
+    }
 
     const data = { hallId, clientName, clientPhone, date, deposit, total, addonsIds, packageId, status, notes, paymentMethod, ts: Date.now() };
 
@@ -230,6 +249,33 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
     renderList();
   };
   ['fFrom', 'fTo', 'fStatus'].forEach(id => document.getElementById(id).onchange = renderList);
+
+  // ── تصدير Excel للحجوزات المفلترة ──
+  document.getElementById('exportBtn').onclick = () => {
+    const fFrom = document.getElementById('fFrom').value;
+    const fTo = document.getElementById('fTo').value;
+    const fStatus = document.getElementById('fStatus').value;
+    let list = [...bookings];
+    if (fFrom) list = list.filter(b => b.date >= fFrom);
+    if (fTo) list = list.filter(b => b.date <= fTo);
+    if (fStatus !== 'all') list = list.filter(b => b.status === fStatus);
+    list.sort((a, b) => a.date.localeCompare(b.date));
+    const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const lines = [[
+      esc('العميل'), esc('الهاتف'), esc('التاريخ'), esc('الباقة'), esc('عدد الإضافات'),
+      esc('العربون'), esc('الإجمالي'), esc('الحالة'), esc('ملاحظات')
+    ]];
+    list.forEach(b => lines.push([
+      esc(b.clientName), esc(b.clientPhone || ''), esc(b.date), esc(packageName(b.packageId)),
+      esc((b.addonsIds || []).length), esc(b.deposit), esc(b.total), esc(STATUS_AR[b.status]), esc(b.notes || '')
+    ]));
+    const blob = new Blob(['\uFEFF' + lines.map(r => r.join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'حجوزات-' + DB.todayKey().replace(/-/g, '') + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
 
   async function refresh() {
     await loadAll();

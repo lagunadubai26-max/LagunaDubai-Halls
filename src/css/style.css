@@ -267,17 +267,25 @@ img{max-width:100%;display:block}
 .contract-sheet td,.contract-sheet th{border:1px solid #d6d3d1;padding:9px 12px;text-align:right}
 .contract-sheet th{background:#f7f1e4}
 .contract-sheet .terms{border:1px solid #d6d3d1;border-radius:8px;padding:14px;margin-top:18px;font-size:13px;line-height:1.9;white-space:pre-line}
-.contract-sheet .sig{display:flex;justify-content:space-between;margin-top:36px;font-size:13px}
-.contract-sheet .sig span{border-top:1px solid #999;padding-top:6px;width:40%;text-align:center}
+.contract-sheet .cnum{display:flex;justify-content:space-between;font-size:12px;color:#666;margin:14px 2px 4px}
+.contract-sheet .paybox{border:1px solid #d6d3d1;border-right:4px solid var(--accent-dark);border-radius:8px;padding:12px 14px;margin-top:16px;font-size:13px;background:#fbf7ee}
+.contract-sheet .sig{display:flex;justify-content:space-between;gap:30px;margin-top:40px}
+.contract-sheet .sig-box{flex:1;text-align:center}
+.contract-sheet .sig-box b{display:block;margin-bottom:46px;font-size:13px}
+.contract-sheet .sig-line{border-top:2px solid #666}
+.contract-sheet .sig-box span{font-size:12px;color:#444}
+.contract-sheet .sig-name{margin-top:14px;font-size:12px;color:#333}
 
-/* ── Reviews ── */
-.rev{border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:var(--card-bg);transition:var(--transition)}
-.rev:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
-.rev .rev-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.rev .stars{color:var(--gold)}
-.rev .stars.low{color:var(--danger)}
-.rev p{font-size:13px;line-height:1.7;color:var(--primary)}
-.rev .meta{font-size:11px;color:var(--muted);margin-top:6px}
+/* ── Bar chart (dashboard) ── */
+.bar-chart{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;height:170px;padding:10px 4px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
+.bar{width:100%;max-width:44px;background:linear-gradient(180deg,var(--accent),var(--accent-dark));border-radius:6px 6px 0 0;min-height:4px;transition:var(--transition)}
+.bar:hover{filter:brightness(1.08)}
+.bar-col span{font-size:11px}
+
+/* ── Pay info (payments modal) ── */
+.pay-info{background:#f7f1e4;border:1px dashed var(--accent);border-radius:10px;padding:10px 14px;margin-bottom:12px}
+.icon-btn.green:hover{border-color:var(--green);color:var(--green)}
 
 /* ── Misc ── */
 .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#fafafa 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px}
@@ -327,6 +335,9 @@ img{max-width:100%;display:block}
   .main{padding:0}
   .contract-sheet{box-shadow:none;border:none}
   .card{box-shadow:none;border:none}
+  body.printing-contract .layout{display:none}
+  body.printing-contract .modal-bg{position:static;background:none;padding:0}
+  body.printing-contract .modal-bg .modal{box-shadow:none;max-width:100%;width:100%}
 }
 
 /* ── Responsive ── */

@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=6">
-  <script src="js/role-head.js?v=6"></script>
+  <link rel="stylesheet" href="css/style.css?v=7">
+  <script src="js/role-head.js?v=7"></script>
 </head>
 <body>
   <div class="layout">
@@ -24,7 +24,6 @@
         <a href="payments.html"><i class="fa-solid fa-money-bill-wave"></i><span>المدفوعات</span></a>
         <a href="hall-expenses.html"><i class="fa-solid fa-receipt"></i><span>مصروفات الأفراح</span></a>
         <a href="reports.html" class="no-employee"><i class="fa-solid fa-chart-simple"></i><span>التقارير</span></a>
-        <a href="reviews.html"><i class="fa-solid fa-star"></i><span>تقييمات العملاء</span></a>
         <a href="halls.html" class="super-only"><i class="fa-solid fa-building-columns"></i><span>إدارة القاعات</span></a>
         <a href="settings.html" class="admin-only"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></a>
       </nav>
@@ -48,6 +47,12 @@
         <div class="card stat"><div class="ic blue"><i class="fa-solid fa-circle-dollar-to-slot"></i></div><div><h3>عربون محصّل</h3><b id="stDeposits">0</b></div></div>
         <div class="card stat"><div class="ic red"><i class="fa-solid fa-bell"></i></div><div><h3>حجوزات اليوم</h3><b id="stToday">0</b></div></div>
       </div>
+      <div class="grid cols-4 mt">
+        <div class="card stat"><div class="ic gold"><i class="fa-solid fa-calendar-days"></i></div><div><h3>إيراد العام</h3><b id="stYearRev">0</b></div></div>
+        <div class="card stat"><div class="ic blue"><i class="fa-solid fa-chart-pie"></i></div><div><h3>متوسط قيمة الفرح</h3><b id="stAvg">0</b></div></div>
+        <div class="card stat"><div class="ic red"><i class="fa-solid fa-scale-balanced"></i></div><div><h3>الأقساط المتبقية</h3><b id="stRemain">0</b></div></div>
+        <div class="card stat"><div class="ic green"><i class="fa-solid fa-fire"></i></div><div><h3>أفراح بعد 14 يوم</h3><b id="stNext14">0</b></div></div>
+      </div>
       <div class="grid cols-2 mt">
         <div class="card">
           <h3 class="title"><i class="fa-solid fa-list"></i> الحجوزات القادمة</h3>
@@ -56,6 +61,16 @@
         <div class="card">
           <h3 class="title"><i class="fa-solid fa-money-bill-wave"></i> آخر المدفوعات</h3>
           <div id="payList"><div class="empty">جاري التحميل...</div></div>
+        </div>
+      </div>
+      <div class="grid cols-2 mt">
+        <div class="card">
+          <h3 class="title"><i class="fa-solid fa-triangle-exclamation"></i> تنبيهات الأقساط المتبقية</h3>
+          <div id="dueList"><div class="empty">جاري التحميل...</div></div>
+        </div>
+        <div class="card">
+          <h3 class="title"><i class="fa-solid fa-chart-column"></i> الإيراد آخر 6 شهور</h3>
+          <div class="bar-chart" id="barChart"></div>
         </div>
       </div>
       <div class="mt">
@@ -69,12 +84,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js?v=6"></script>
-  <script src="js/firebase-client.js?v=6"></script>
-  <script src="js/sanitize.js?v=6"></script>
-  <script src="js/data.js?v=6"></script>
-  <script src="js/guard.js?v=6"></script>
-  <script src="js/role.js?v=6"></script>
-  <script src="js/index.js?v=6"></script>
+  <script src="js/firebase-config.js?v=7"></script>
+  <script src="js/firebase-client.js?v=7"></script>
+  <script src="js/sanitize.js?v=7"></script>
+  <script src="js/data.js?v=7"></script>
+  <script src="js/guard.js?v=7"></script>
+  <script src="js/role.js?v=7"></script>
+  <script src="js/index.js?v=7"></script>
 </body>
 </html>

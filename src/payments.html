@@ -6,7 +6,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=6"><script src="js/role-head.js?v=6"></script>
+  <link rel="stylesheet" href="css/style.css?v=7"><script src="js/role-head.js?v=7"></script>
 </head>
 <body>
   <div class="layout">
@@ -21,7 +21,6 @@
         <a href="payments.html" class="active"><i class="fa-solid fa-money-bill-wave"></i><span>المدفوعات</span></a>
         <a href="hall-expenses.html"><i class="fa-solid fa-receipt"></i><span>مصروفات الأفراح</span></a>
         <a href="reports.html" class="no-employee"><i class="fa-solid fa-chart-simple"></i><span>التقارير</span></a>
-        <a href="reviews.html"><i class="fa-solid fa-star"></i><span>تقييمات العملاء</span></a>
         <a href="halls.html" class="super-only"><i class="fa-solid fa-building-columns"></i><span>إدارة القاعات</span></a>
         <a href="settings.html" class="admin-only"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></a>
       </nav>
@@ -55,12 +54,23 @@
           <div class="empty" id="pEmpty" style="display:none">لا توجد مدفوعات</div>
         </div>
       </div>
+      <div class="card mt">
+        <h3 class="title"><i class="fa-solid fa-scale-balanced"></i> أرصدة الأفراح (المتبقي لكل حجز)</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>العميل</th><th>تاريخ الفرح</th><th>الإجمالي</th><th>المحصل</th><th>المتبقي</th><th></th></tr></thead>
+            <tbody id="bBalBody"></tbody>
+          </table>
+          <div class="empty" id="bBalEmpty" style="display:none">لا توجد أرصدة</div>
+        </div>
+      </div>
     </main>
   </div>
   <div class="modal-bg" id="modal">
     <div class="modal">
       <h3>تسجيل دفعة <i class="fa-solid fa-xmark close" id="close"></i></h3>
       <div class="field"><label>الحجز</label><select id="payBooking"></select></div>
+      <div class="pay-info" id="payInfo" style="display:none"></div>
       <div class="form-row">
         <div class="field"><label>المبلغ (ج.م)</label><input type="number" id="payAmount"></div>
         <div class="field"><label>النوع</label><select id="payType"><option value="deposit">عربون</option><option value="installment">دفعة</option><option value="full">متبقي / كامل</option></select></div>
@@ -77,12 +87,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js?v=6"></script>
-  <script src="js/firebase-client.js?v=6"></script>
-  <script src="js/sanitize.js?v=6"></script>
-  <script src="js/data.js?v=6"></script>
-  <script src="js/guard.js?v=6"></script>
-  <script src="js/role.js?v=6"></script>
-  <script src="js/payments.js?v=6"></script>
+  <script src="js/firebase-config.js?v=7"></script>
+  <script src="js/firebase-client.js?v=7"></script>
+  <script src="js/sanitize.js?v=7"></script>
+  <script src="js/data.js?v=7"></script>
+  <script src="js/guard.js?v=7"></script>
+  <script src="js/role.js?v=7"></script>
+  <script src="js/payments.js?v=7"></script>
 </body>
 </html>
