@@ -22,7 +22,7 @@
     var now = Date.now();
     var INACTIVITY_MS = 4 * 60 * 60 * 1000;
     var MAX_SESSION_MS = 12 * 60 * 60 * 1000;
-    if ((now - lastActive > INACTIVITY_MS) || (sessionStart > 0 && now - sessionStart > MAX_SESSION_MS)) {
+    if ((lastActive > 0 && now - lastActive > INACTIVITY_MS) || (sessionStart > 0 && now - sessionStart > MAX_SESSION_MS)) {
       sessionStorage.removeItem('laguna_hall_user');
       sessionStorage.removeItem('laguna_hall_session_start');
       sessionStorage.removeItem('laguna_hall_last_active');

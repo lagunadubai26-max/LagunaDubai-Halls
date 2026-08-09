@@ -33,6 +33,9 @@
         hallName: user.role === 'SuperAdmin' ? null : (hall ? hall.name : '')
       };
       DB.session.set(session);
+      const now = Date.now();
+      sessionStorage.setItem('laguna_hall_session_start', String(now));
+      sessionStorage.setItem('laguna_hall_last_active', String(now));
       const uid = FB.getUid();
       if (uid) {
         try {
