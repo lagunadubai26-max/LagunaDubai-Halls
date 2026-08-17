@@ -59,3 +59,27 @@
 .pass-wrap .pass-toggle:hover{color:#1c1917;background:#f5f5f4}
 .pass-wrap .pass-toggle.showing{color:#1c1917}
 .pass-wrap .pass-toggle:focus{outline:none;color:#1c1917}
+
+/* ── Auth quick accounts ── */
+.auth-quick{margin-top:22px;padding-top:16px;border-top:1px dashed var(--border)}
+.auth-quick-title{font-size:12px;color:var(--muted);margin-bottom:10px;text-align:center}
+.auth-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qa-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--bg2);border:2px solid var(--border);border-radius:12px;
+  padding:9px 6px;font-size:12px;font-weight:700;color:var(--primary);
+  cursor:pointer;transition:all .2s;
+}
+.qa-btn:hover{border-color:var(--accent);background:#fffbeb;transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.07)}
+.qa-btn:active{transform:scale(.96)}
+.qa-emoji{font-size:17px}
+.qa-role{white-space:nowrap}
+
+/* ── Input with icon ── */
+.in-wrap{position:relative}
+.in-wrap input{padding-right:42px}
+.in-wrap i{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:var(--muted);font-size:15px;pointer-events:none;transition:color .2s;
+}
+.in-wrap:focus-within i{color:var(--accent)}

@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=19">
-  <link rel="stylesheet" href="css/auth.css?v=19">
+  <link rel="stylesheet" href="css/style.css?v=20">
+  <link rel="stylesheet" href="css/auth.css?v=20">
 </head>
 <body class="auth-body">
   <div class="auth-wrap">
@@ -21,7 +21,10 @@
       <div id="authMsg" class="auth-msg"></div>
       <div class="field">
         <label>البريد الإلكتروني</label>
-        <input type="email" id="loginEmail" placeholder="admin@laguna.com" autocomplete="email">
+        <div class="in-wrap">
+          <input type="email" id="loginEmail" placeholder="admin@laguna.com" autocomplete="email">
+          <i class="fa-solid fa-envelope"></i>
+        </div>
       </div>
       <div class="field">
         <label>كلمة المرور</label>
@@ -32,21 +35,21 @@
           </button>
         </div>
       </div>
-      <button class="btn auth-btn" id="loginBtn" style="width:100%">تسجيل الدخول</button>
-      <div class="auth-foot">
-        🌹 rose@laguna.com / rose123 &nbsp;·&nbsp; 🎉 sukra@laguna.com / sukra123<br>
-        ⛵ markab@laguna.com / markab123 &nbsp;·&nbsp; 🏛️ admin@laguna.com / admin123
+      <button class="btn auth-btn" id="loginBtn" style="width:100%"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
+      <div class="auth-quick">
+        <div class="auth-quick-title">دخول سريع — اضغط على الحساب</div>
+        <div class="auth-quick-grid" id="quickAccounts"></div>
       </div>
     </div>
   </div>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js?v=19"></script>
-  <script src="js/firebase-client.js?v=19"></script>
-  <script src="js/sanitize.js?v=19"></script>
-  <script src="js/password-utils.js?v=19"></script>
-  <script src="js/data.js?v=19"></script>
-  <script src="js/auth.js?v=19"></script>
+  <script src="js/firebase-config.js?v=20"></script>
+  <script src="js/firebase-client.js?v=20"></script>
+  <script src="js/sanitize.js?v=20"></script>
+  <script src="js/password-utils.js?v=20"></script>
+  <script src="js/data.js?v=20"></script>
+  <script src="js/auth.js?v=20"></script>
 </body>
 </html>
