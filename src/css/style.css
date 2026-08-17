@@ -299,6 +299,17 @@ img{max-width:100%;display:block}
 }
 .filters select:focus,.filters input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,119,6,.1)}
 .filters .spacer{flex:1}
+.f-search{
+  position:relative;display:flex;align-items:center;
+}
+.f-search i{
+  position:absolute;right:12px;color:var(--muted);font-size:13px;pointer-events:none;
+}
+.f-search input{
+  padding-right:34px;width:220px;transition:all .2s;
+}
+.f-search input:focus{width:280px;border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,119,6,.12)}
+.f-search.active i{color:var(--accent)}
 
 /* ── Contract print ── */
 .contract-sheet{background:#fff;color:#1a1a1a;padding:34px;border-radius:8px;font-family:'Cairo',sans-serif;border:1px solid var(--border)}

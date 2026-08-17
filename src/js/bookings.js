@@ -73,15 +73,34 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
     });
   }
 
-  function renderList() {
+  function matchSearch(b, q, qDigits) {
+    if ((b.clientName || '').toLowerCase().includes(q)) return true;
+    if (qDigits) {
+      const phoneDigits = String(b.clientPhone || '').replace(/\D/g, '');
+      const i = phoneDigits.indexOf(qDigits);
+      return i >= 0 && (i === 0 || qDigits.length >= 7);
+    }
+    return false;
+  }
+
+  function filteredList() {
     const fFrom = document.getElementById('fFrom').value;
     const fTo = document.getElementById('fTo').value;
     const fStatus = document.getElementById('fStatus').value;
+    const q = document.getElementById('fSearch').value.trim().toLowerCase();
     let list = [...bookings];
     if (fFrom) list = list.filter(b => b.date >= fFrom);
     if (fTo) list = list.filter(b => b.date <= fTo);
     if (fStatus !== 'all') list = list.filter(b => b.status === fStatus);
-    list.sort((a, b) => a.date.localeCompare(b.date));
+    if (q) {
+      const qDigits = q.replace(/\D/g, '');
+      list = list.filter(b => matchSearch(b, q, qDigits));
+    }
+    return list.sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  function renderList() {
+    const list = filteredList();
 
     document.getElementById('fCount').textContent = list.length + ' حجز';
     const body = document.getElementById('bookBody');
@@ -293,17 +312,15 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
     renderList();
   };
   ['fFrom', 'fTo', 'fStatus'].forEach(id => document.getElementById(id).onchange = renderList);
+  const fSearch = document.getElementById('fSearch');
+  fSearch.oninput = () => {
+    fSearch.parentElement.classList.toggle('active', fSearch.value.trim().length > 0);
+    renderList();
+  };
 
   // ── تصدير Excel للحجوزات المفلترة ──
   document.getElementById('exportBtn').onclick = () => {
-    const fFrom = document.getElementById('fFrom').value;
-    const fTo = document.getElementById('fTo').value;
-    const fStatus = document.getElementById('fStatus').value;
-    let list = [...bookings];
-    if (fFrom) list = list.filter(b => b.date >= fFrom);
-    if (fTo) list = list.filter(b => b.date <= fTo);
-    if (fStatus !== 'all') list = list.filter(b => b.status === fStatus);
-    list.sort((a, b) => a.date.localeCompare(b.date));
+    const list = filteredList();
     const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
     const lines = [[
       esc('العميل'), esc('الهاتف'), esc('التاريخ'), esc('الباقة'), esc('عدد الإضافات'),
