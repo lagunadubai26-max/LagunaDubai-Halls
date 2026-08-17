@@ -52,10 +52,10 @@
 .pass-wrap input{padding-left:42px;direction:ltr;text-align:left}
 .pass-wrap .pass-toggle{
   position:absolute;left:8px;top:50%;transform:translateY(-50%);
-  background:transparent;border:none;cursor:pointer;color:#a8a29e;
+  background:transparent;border:none;cursor:pointer;color:#1c1917;
   font-size:17px;padding:8px;border-radius:8px;transition:color .2s,background .2s;
   display:grid;place-items:center;
 }
-.pass-wrap .pass-toggle:hover{color:#d97706;background:#fffbeb}
-.pass-wrap .pass-toggle.showing{color:#d97706}
-.pass-wrap .pass-toggle:focus{outline:none;color:#d97706}
+.pass-wrap .pass-toggle:hover{color:#1c1917;background:#f5f5f4}
+.pass-wrap .pass-toggle.showing{color:#1c1917}
+.pass-wrap .pass-toggle:focus{outline:none;color:#1c1917}
