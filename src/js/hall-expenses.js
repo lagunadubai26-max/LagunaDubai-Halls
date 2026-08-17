@@ -48,7 +48,14 @@
         <td><button class="icon-btn red" data-id="${escapeHtml(e.id)}" title="حذف"><i class="fa-solid fa-trash"></i></button></td>
       </tr>`).join('');
     body.querySelectorAll('.icon-btn').forEach(b => b.onclick = () => {
-      if (confirm('حذف هذا المصروف؟')) DB.hall_expenses.remove(b.dataset.id).then(() => { toast('تم الحذف'); refresh(); });
+      if (confirm('حذف هذا المصروف؟')) {
+        const e = expenses.find(x => x.id === b.dataset.id);
+        DB.hall_expenses.remove(b.dataset.id).then(() => {
+          DB.audit.log('expense_delete', { id: b.dataset.id, item: e ? e.item : '', amount: e ? e.amount : 0 });
+          toast('تم الحذف');
+          refresh();
+        });
+      }
     });
   }
 

@@ -10,6 +10,19 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/user_mappings/$(request.auth.uid)).data;
     }
 
+    function hasMapping() {
+      return getUserMapping() != null;
+    }
+
+    // mapping الجديد يجب أن يطابق مستند المستخدم الفعلي (لا رفع صلاحيات)
+    function mappingMatchesUser() {
+      let targetUser = get(/databases/$(database)/documents/users/$(request.resource.data.userId)).data;
+      return targetUser != null
+        && targetUser.role == request.resource.data.role
+        && (targetUser.hallId || null) == (request.resource.data.hallId || null)
+        && (targetUser.active || 0) != 0;
+    }
+
     function userRole() {
       return getUserMapping().role;
     }
@@ -55,40 +68,47 @@ service cloud.firestore {
       return isSuper() || (isStaff() && requestRes.data.hallId != null && requestRes.data.hallId == userHall());
     }
 
-    // ── halls: أي مستخدم مصادق يقرأ، الكتابة لسوبر أدمن (مع bootstrap) ──
-    match /halls/{hallId} {
-      allow read: if isAuth();
-      allow write: if isSuper() || (isAuth() && noUsers());
-    }
-
-    // ── users: القراءة للمستخدمين بنفس القاعة، الكتابة لسوبر أدمن (مع bootstrap) ──
-    match /users/{docId} {
-      allow read: if isAuth() && (isSuper() || getUserMapping() != null && userHall() == resource.data.hallId);
-      allow write: if isSuper() || (isAuth() && noUsers());
-    }
-
-    // ── user_mappings: المستخدم يقرأ mapping نفسه، البوتستراب للـ SuperAdmin الأول ──
+    // ── user_mappings: المستخدم يقرأ/يحدّث mapping نفسه بعد تسجيل الدخول،
+    //    مع التحقق من أن الدور يطابق مستند المستخدم (بلا رفع صلاحيات) ──
     match /user_mappings/{uid} {
       allow read: if isAuth() && request.auth.uid == uid;
-      allow create: if isAuth() && (request.auth.uid == uid && (isStaff() || noUsers()));
-      allow update, delete: if isAuth() && (request.auth.uid == uid || isSuper());
+      allow create: if (isAuth() && mappingMatchesUser()) || (isAuth() && noUsers());
+      allow update: if isAuth() && request.auth.uid == uid && mappingMatchesUser();
+      allow delete: if isAuth() && request.auth.uid == uid && userRole() == 'pending';
     }
 
-    // ── settings: شروط العقد والإعدادات ──
+    // ── users: القراءة لكل مستخدم مصادق (تسجيل الدخول يبحث بالبريد في كل السجلات)،
+    //    الكتابة لسوبر أدمن أو مدير قاعته، مع bootstrap لأول مرة ──
+    match /users/{docId} {
+      allow read: if isAuth();
+      allow create: if isSuper() || (isAuth() && noUsers());
+      allow update: if isSuper() || (isManager() && resource.data.hallId == userHall());
+      allow delete: if isSuper();
+    }
+
+    // ── halls: القراءة للجميع المصادقين، تعديل القاعة لمديرها أو سوبر أدمن ──
+    match /halls/{hallId} {
+      allow read: if isAuth();
+      allow create: if isSuper() || (isAuth() && noUsers());
+      allow update: if isSuper() || (isManager() && resource.data.id == userHall());
+      allow delete: if isSuper();
+    }
+
+    // ── settings: شروط العقد والإعدادات — لكل قاعة سجلاتها (hallId) ──
     match /settings/{docId} {
-      allow read, update, delete: if isAuth() && readHallScoped(resource);
-      allow create: if isAuth() && writeHallScoped(request.resource);
+      allow read, update, delete: if isAuth() && (readHallScoped(resource) || noUsers());
+      allow create: if isAuth() && (writeHallScoped(request.resource) || noUsers());
     }
 
     // ── الباقات والإضافات والعملاء والحجوزات والعقود والمدفوعات والمصروفات وسجل التدقيق ──
     match /packages/{docId} {
-      allow read, update, delete: if isAuth() && readHallScoped(resource);
-      allow create: if isAuth() && writeHallScoped(request.resource);
+      allow read, update, delete: if isAuth() && (readHallScoped(resource) || noUsers());
+      allow create: if isAuth() && (writeHallScoped(request.resource) || noUsers());
     }
 
     match /addons/{docId} {
-      allow read, update, delete: if isAuth() && readHallScoped(resource);
-      allow create: if isAuth() && writeHallScoped(request.resource);
+      allow read, update, delete: if isAuth() && (readHallScoped(resource) || noUsers());
+      allow create: if isAuth() && (writeHallScoped(request.resource) || noUsers());
     }
 
     match /clients/{docId} {

@@ -8,6 +8,7 @@
   }
 
   try {
+    await FB.ensure();
     await DB.seed();
   } catch (e) {
     console.warn('[auth] seed:', e.message);
@@ -37,6 +38,7 @@
       const now = Date.now();
       sessionStorage.setItem('laguna_hall_session_start', String(now));
       sessionStorage.setItem('laguna_hall_last_active', String(now));
+      try { await DB.seed(); } catch (e) { console.warn('[auth] seed after login:', e.message); }
       const uid = FB.getUid();
       if (uid) {
         try {

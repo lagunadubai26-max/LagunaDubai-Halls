@@ -133,13 +133,13 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
     document.getElementById('bkMethod').value = existing ? (existing.paymentMethod || 'cash') : 'cash';
 
     const pkgSel = document.getElementById('bkPackage');
-    pkgSel.innerHTML = '<option value="">— بدون باقة —</option>' + packages.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} — ${DB.fmt(p.price)}</option>`).join('');
+    pkgSel.innerHTML = '<option value="">— بدون باقة —</option>' + packages.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} — ${DB.fmtPrice(p.price)}</option>`).join('');
     pkgSel.value = existing ? (existing.packageId || '') : '';
 
     const addonBox = document.getElementById('bkAddons');
     const sel = existing ? (existing.addonsIds || []) : [];
     addonBox.innerHTML = addons.length ? addons.map(a => `
-      <label><input type="checkbox" value="${escapeHtml(a.id)}" ${sel.includes(a.id) ? 'checked' : ''}> ${escapeHtml(a.name)} — ${DB.fmt(a.price)}</label>
+      <label><input type="checkbox" value="${escapeHtml(a.id)}" ${sel.includes(a.id) ? 'checked' : ''}> ${escapeHtml(a.name)} — ${DB.fmtPrice(a.price)}</label>
     `).join('') : '<span class="muted" style="font-size:12px">لا توجد إضافات — أضفها من صفحة الإضافات</span>';
 
     document.getElementById('bkModal').classList.add('show');
@@ -147,12 +147,12 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
 
   function calcTotal() {
     const p = packages.find(x => x.id === document.getElementById('bkPackage').value);
-    let total = p ? Number(p.price) : 0;
+    let total = p && p.price != null ? Number(p.price) : 0;
     document.querySelectorAll('#bkAddons input:checked').forEach(cb => {
       const a = addons.find(x => x.id === cb.value);
-      if (a) total += Number(a.price || 0);
+      if (a && a.price != null) total += Number(a.price || 0);
     });
-    document.getElementById('bkTotal').value = total;
+    document.getElementById('bkTotal').value = total || '';
   }
   document.getElementById('bkPackage').onchange = calcTotal;
   document.getElementById('bkAddons').onchange = calcTotal;
@@ -190,6 +190,28 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
       if (editingId) {
         await DB.bookings.update(editingId, data);
         await DB.audit.log('booking_update', { id: editingId, clientName, date });
+
+        // مزامنة العقد المرتبط بالحجز
+        const existingContract = (await DB.contracts.all()).find(c => c.bookingId === editingId);
+        const terms = (settings.contract_terms || '');
+        const contractData = {
+          hallId, bookingId: editingId, clientName, clientPhone, eventDate: date,
+          deposit, total, packageName: packageName(packageId),
+          addonsText: addonsIds.map(a => { const x = addons.find(y => y.id === a); return x ? x.name : ''; }).filter(Boolean).join('، '),
+          fixedTerms: terms, customNotes: notes, ts: Date.now()
+        };
+        if (existingContract) await DB.contracts.update(existingContract.id, contractData);
+        else await DB.contracts.add({ id: 'c_' + editingId, ...contractData });
+
+        // مزامنة دفعة العربون: تعديلها حسب القيمة الجديدة
+        const depositPay = (await DB.payments.all()).find(p => p.bookingId === editingId && p.type === 'deposit');
+        if (deposit > 0) {
+          const payData = { amount: deposit, method: paymentMethod, date, note: 'عربون — ' + clientName, ts: Date.now() };
+          if (depositPay) await DB.payments.update(depositPay.id, payData);
+          else await DB.payments.add({ id: 'p_' + editingId, hallId, bookingId: editingId, type: 'deposit', ...payData });
+        } else if (depositPay) {
+          await DB.payments.remove(depositPay.id);
+        }
       } else {
         const id = Date.now().toString(36);
         await DB.bookings.add({ ...data, id });

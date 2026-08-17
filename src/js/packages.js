@@ -3,6 +3,7 @@
   if (!u) return;
   const hallId = u.hallId;
   let editingId = null;
+  let pendingDelete = null;
 
   function toast(msg, type) {
     const t = document.createElement('div');
@@ -11,6 +12,21 @@
     document.getElementById('toast').appendChild(t);
     setTimeout(() => t.remove(), 3000);
   }
+
+  function askDelete(p) {
+    pendingDelete = p;
+    document.getElementById('delText').textContent = 'حذف الباقة "' + p.name + '"؟';
+    document.getElementById('delModal').classList.add('show');
+  }
+  document.getElementById('delYes').onclick = () => {
+    if (pendingDelete) DB.packages.remove(pendingDelete.id).then(() => { DB.audit.log('package_delete', { id: pendingDelete.id, name: pendingDelete.name }); render(); });
+    document.getElementById('delModal').classList.remove('show');
+    pendingDelete = null;
+  };
+  const closeDel = () => { document.getElementById('delModal').classList.remove('show'); pendingDelete = null; };
+  document.getElementById('delCancel').onclick = closeDel;
+  document.getElementById('delClose').onclick = closeDel;
+  document.getElementById('delModal').onclick = e => { if (e.target.id === 'delModal') closeDel(); };
 
   async function render() {
     const items = (await DB.packages.all()).filter(p => p.hallId === hallId);
@@ -21,7 +37,7 @@
         <h3 class="title"><i class="fa-solid fa-box-open"></i> ${escapeHtml(p.name)}</h3>
         <p class="muted" style="font-size:13px;min-height:38px">${escapeHtml(p.description || '')}</p>
         <div class="flex" style="margin-top:10px">
-          <b style="font-size:20px;color:var(--gold2)">${DB.fmt(p.price)}</b>
+          <b style="font-size:20px;color:var(--gold2)">${DB.fmtPrice(p.price)}</b>
           <div class="spacer"></div>
           <button class="icon-btn" data-act="edit" data-id="${escapeHtml(p.id)}"><i class="fa-solid fa-pen"></i></button>
           <button class="icon-btn red" data-act="del" data-id="${escapeHtml(p.id)}"><i class="fa-solid fa-trash"></i></button>
@@ -32,7 +48,7 @@
         const p = items.find(x => x.id === b.dataset.id);
         if (!p) return;
         if (b.dataset.act === 'edit') open(p);
-        else if (confirm('حذف الباقة؟')) DB.packages.remove(p.id).then(render);
+        else if (b.dataset.act === 'del') askDelete(p);
       };
     });
   }

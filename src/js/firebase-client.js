@@ -40,6 +40,14 @@ const FB = (() => {
     return items;
   }
 
+  async function getCollectionWhere(name, field, value) {
+    await ensure();
+    const snap = await db.collection(name).where(field, '==', value).orderBy('__name__', 'asc').get();
+    const items = [];
+    snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    return items;
+  }
+
   async function addDoc(name, data) {
     await ensure();
     const id = data.id || docId();
@@ -77,5 +85,5 @@ const FB = (() => {
   function getDb() { return db; }
   function clockNow() { return new Date(); }
 
-  return { getCollection, addDoc, updateDoc, removeDoc, onCollection, runTransaction, getUid, getDb, ensure, clockNow };
+  return { getCollection, getCollectionWhere, addDoc, updateDoc, removeDoc, onCollection, runTransaction, getUid, getDb, ensure, clockNow };
 })();

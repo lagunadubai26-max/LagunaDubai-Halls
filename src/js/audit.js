@@ -13,9 +13,12 @@
     payment_delete: 'حذف دفعة',
     package_create: 'إضافة باقة',
     package_update: 'تعديل باقة',
+    package_delete: 'حذف باقة',
     addon_create: 'إضافة خدمة',
     addon_update: 'تعديل خدمة',
+    addon_delete: 'حذف خدمة',
     expense_create: 'تسجيل مصروف',
+    expense_delete: 'حذف مصروف',
     settings_terms_update: 'تعديل شروط العقد',
     settings_restore: 'استعادة نسخة احتياطية',
     password_change: 'تغيير كلمة مرور',
@@ -32,8 +35,13 @@
     payment_create: 'completed',
     payment_delete: 'canceled',
     package_create: 'confirmed',
+    package_update: 'reserved',
+    package_delete: 'canceled',
     addon_create: 'confirmed',
+    addon_update: 'reserved',
+    addon_delete: 'canceled',
     expense_create: 'pending',
+    expense_delete: 'canceled',
     settings_restore: 'pending',
     password_change: 'pending',
     seed: 'reserved'
@@ -47,7 +55,7 @@
     catch (e) { return ts; }
   }
 
-  function fmtDetails(d, action) {
+  function fmtDetails(d) {
     if (!d || typeof d !== 'object') return '-';
     const bits = [];
     if (d.clientName) bits.push('العميل: ' + d.clientName);
@@ -78,7 +86,7 @@
         <td class="muted" style="font-size:12px;white-space:nowrap">${fmtTime(l.ts)}</td>
         <td><b>${escapeHtml(l.actor || '—')}</b></td>
         <td><span class="badge ${ACTION_CLS[l.action] || 'pending'}">${ACTION_AR[l.action] || escapeHtml(l.action)}</span></td>
-        <td class="muted" style="font-size:12px">${escapeHtml(fmtDetails(l.details, l.action))}</td>
+        <td class="muted" style="font-size:12px">${escapeHtml(fmtDetails(l.details))}</td>
         <td class="muted" style="font-size:12px">${isSuper ? escapeHtml(hallNameOf(l.hallId)) : '—'}</td>
       </tr>`).join('');
   }

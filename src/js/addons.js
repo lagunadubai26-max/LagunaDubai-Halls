@@ -3,6 +3,7 @@
   if (!u) return;
   const hallId = u.hallId;
   let editingId = null;
+  let pendingDelete = null;
 
   function toast(msg, type) {
     const t = document.createElement('div');
@@ -11,6 +12,21 @@
     document.getElementById('toast').appendChild(t);
     setTimeout(() => t.remove(), 3000);
   }
+
+  function askDelete(a) {
+    pendingDelete = a;
+    document.getElementById('delText').textContent = 'حذف الخدمة "' + a.name + '"؟';
+    document.getElementById('delModal').classList.add('show');
+  }
+  document.getElementById('delYes').onclick = () => {
+    if (pendingDelete) DB.addons.remove(pendingDelete.id).then(() => { DB.audit.log('addon_delete', { id: pendingDelete.id, name: pendingDelete.name }); render(); });
+    document.getElementById('delModal').classList.remove('show');
+    pendingDelete = null;
+  };
+  const closeDel = () => { document.getElementById('delModal').classList.remove('show'); pendingDelete = null; };
+  document.getElementById('delCancel').onclick = closeDel;
+  document.getElementById('delClose').onclick = closeDel;
+  document.getElementById('delModal').onclick = e => { if (e.target.id === 'delModal') closeDel(); };
 
   async function render() {
     const items = (await DB.addons.all()).filter(a => a.hallId === hallId);
@@ -21,7 +37,7 @@
     body.innerHTML = items.map(a => `
       <tr>
         <td><b>${escapeHtml(a.name)}</b></td>
-        <td>${a.price ? DB.fmt(a.price) : '<span class="muted">غير محدد</span>'}</td>
+        <td>${DB.fmtPrice(a.price)}</td>
         <td><div class="row-actions">
           <button class="icon-btn" data-act="edit" data-id="${escapeHtml(a.id)}"><i class="fa-solid fa-pen"></i></button>
           <button class="icon-btn red" data-act="del" data-id="${escapeHtml(a.id)}"><i class="fa-solid fa-trash"></i></button>
@@ -32,7 +48,7 @@
         const a = items.find(x => x.id === b.dataset.id);
         if (!a) return;
         if (b.dataset.act === 'edit') open(a);
-        else if (confirm('حذف الإضافة؟')) DB.addons.remove(a.id).then(render);
+        else if (b.dataset.act === 'del') askDelete(a);
       };
     });
   }

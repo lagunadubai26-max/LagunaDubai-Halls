@@ -3,6 +3,7 @@
   if (!u) return;
   if (u.role !== 'SuperAdmin') { window.location.href = 'index.html'; return; }
   let editingHall = null;
+  let pendingDelete = null;
 
   function toast(msg, type) {
     const t = document.createElement('div');
@@ -11,6 +12,21 @@
     document.getElementById('toast').appendChild(t);
     setTimeout(() => t.remove(), 3000);
   }
+
+  function askDelete(h) {
+    pendingDelete = h;
+    document.getElementById('delText').textContent = 'حذف القاعة "' + h.name + '"؟ (لن تُحذف بيانات حجوزاتها)';
+    document.getElementById('delModal').classList.add('show');
+  }
+  document.getElementById('delYes').onclick = () => {
+    if (pendingDelete) DB.halls.remove(pendingDelete.id).then(() => { DB.audit.log('hall_delete', { id: pendingDelete.id, name: pendingDelete.name }); render(); });
+    document.getElementById('delModal').classList.remove('show');
+    pendingDelete = null;
+  };
+  const closeDel = () => { document.getElementById('delModal').classList.remove('show'); pendingDelete = null; };
+  document.getElementById('delCancel').onclick = closeDel;
+  document.getElementById('delClose').onclick = closeDel;
+  document.getElementById('delModal').onclick = e => { if (e.target.id === 'delModal') closeDel(); };
 
   async function render() {
     const [halls, users] = await Promise.all([DB.halls.all(), DB.users.all()]);
@@ -38,7 +54,7 @@
         if (!h) return;
         if (b.dataset.act === 'edit') open(h);
         else if (b.dataset.act === 'manager') openManager(h);
-        else if (confirm('حذف القاعة ' + h.name + '؟ (لن تُحذف بيانات حجوزاتها)')) DB.halls.remove(h.id).then(render);
+        else if (b.dataset.act === 'del') askDelete(h);
       };
     });
   }

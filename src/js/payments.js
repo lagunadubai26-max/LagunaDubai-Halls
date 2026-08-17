@@ -59,7 +59,14 @@
         </tr>`;
       }).join('');
       body.querySelectorAll('.icon-btn').forEach(b => b.onclick = () => {
-        if (confirm('حذف هذه الدفعة؟')) DB.payments.remove(b.dataset.id).then(() => { DB.audit.log('payment_delete', { id: b.dataset.id }); toast('تم الحذف'); refresh(); });
+        if (confirm('حذف هذه الدفعة؟')) {
+          const p = payments.find(x => x.id === b.dataset.id);
+          DB.payments.remove(b.dataset.id).then(() => {
+            DB.audit.log('payment_delete', { id: b.dataset.id, bookingId: p ? p.bookingId : '', amount: p ? p.amount : 0 });
+            toast('تم الحذف');
+            refresh();
+          });
+        }
       });
     }
 

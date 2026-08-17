@@ -27,11 +27,13 @@
       const upcoming = upcomingPer[h.id] || 0;
       const meta = h.address ? escapeHtml(h.address) : (h.phone ? escapeHtml(h.phone) : 'قاعة أفراح — جاهزة للحجز');
       const phone = h.phone ? `<div class="h-meta">${escapeHtml(h.phone)}</div>` : '';
+      const capacity = h.capacity ? `<div class="h-meta"><i class="fa-solid fa-users" style="margin-left:4px"></i>تسع حتى ${h.capacity} فرد</div>` : '';
       card.innerHTML = `
         <div class="h-ic">${escapeHtml(h.emoji || '🏛️')}</div>
         <h3>${escapeHtml(h.name)}</h3>
         <div class="h-meta">${meta}</div>
         ${phone}
+        ${capacity}
         <div class="h-stat"><i class="fa-solid fa-calendar-check" style="color:var(--accent)"></i> أفراح قادمة: <b>${upcoming}</b></div>
         <div class="h-enter">الدخول إلى القاعة <i class="fa-solid fa-arrow-left"></i></div>`;
       card.onclick = () => {

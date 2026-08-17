@@ -77,7 +77,7 @@
     let data;
     try { data = JSON.parse(await file.text()); }
     catch (err) { toast('ملف غير صالح — يجب أن يكون JSON', 'error'); e.target.value = ''; return; }
-    if (!confirm('سيتم استبدال كل البيانات الحالية بمحتوى النسخة. متابعة؟')) { e.target.value = ''; return; }
+    if (!confirm('سيتم مسح كل البيانات الحالية واستبدالها بمحتوى النسخة. متابعة؟')) { e.target.value = ''; return; }
     const db = FB.getDb();
     const pending = [];
     const flush = async () => {
@@ -87,6 +87,16 @@
     };
     let count = 0;
     try {
+      // مسح الكولكشنز أولاً ثم الكتابة من النسخة
+      for (const c of BACKUP_COLLECTIONS) {
+        const existing = await FB.getCollection(c);
+        for (let i = 0; i < existing.length; i += 400) {
+          const chunk = existing.slice(i, i + 400);
+          const batch = db.batch();
+          chunk.forEach(doc => batch.delete(db.collection(c).doc(doc.id)));
+          await batch.commit();
+        }
+      }
       for (const c of BACKUP_COLLECTIONS) {
         const docs = data[c];
         if (!Array.isArray(docs)) continue;
