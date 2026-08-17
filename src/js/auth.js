@@ -59,6 +59,17 @@
 
   document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
 
+  // إظهار / إخفاء كلمة المرور
+  const passInput = document.getElementById('loginPassword');
+  const passToggle = document.getElementById('passToggle');
+  passToggle.onclick = () => {
+    const showing = passInput.type === 'text';
+    passInput.type = showing ? 'password' : 'text';
+    passToggle.classList.toggle('showing', !showing);
+    passToggle.innerHTML = showing ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
+    passInput.focus();
+  };
+
   function flash(text, type) {
     msgEl.className = 'auth-msg ' + type;
     msgEl.textContent = text;

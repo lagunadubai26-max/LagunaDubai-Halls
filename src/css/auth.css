@@ -46,3 +46,16 @@
 .auth-btn{margin-top:8px;width:100%;height:50px;border-radius:12px;font-size:16px;display:flex;justify-content:center}
 .auth-foot{margin-top:20px;text-align:center;font-size:12px;color:#78716c}
 .auth-foot b{color:#b45309}
+
+/* ── Password toggle (eye icon) ── */
+.pass-wrap{position:relative}
+.pass-wrap input{padding-left:42px;direction:ltr;text-align:left}
+.pass-wrap .pass-toggle{
+  position:absolute;left:8px;top:50%;transform:translateY(-50%);
+  background:transparent;border:none;cursor:pointer;color:#a8a29e;
+  font-size:17px;padding:8px;border-radius:8px;transition:color .2s,background .2s;
+  display:grid;place-items:center;
+}
+.pass-wrap .pass-toggle:hover{color:#d97706;background:#fffbeb}
+.pass-wrap .pass-toggle.showing{color:#d97706}
+.pass-wrap .pass-toggle:focus{outline:none;color:#d97706}
