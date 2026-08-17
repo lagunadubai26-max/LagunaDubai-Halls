@@ -10,39 +10,6 @@
   try {
     await FB.ensure();
     await DB.seed();
-    // ── دخول سريع: أزرار حسابات فعلية من قاعدة البيانات ──
-    try {
-      const accUsers = await DB.users.all();
-      const accounts = accUsers
-        .filter(u => u.active)
-        .map(u => ({
-          email: u.email, pass: '', role: u.role, hallId: u.hallId || '',
-          emoji: u.role === 'SuperAdmin' ? '🏛️' : ({ crystala: '💎', rose: '🌹', loshato: '💍' }[u.hallId] || '🏛️')
-        }));
-      // نعرض الباسوردات المعروفة فقط (المبدئية)
-      const KNOWN = { 'admin@laguna.com': 'admin123', 'crystala@laguna.com': '123', 'rose@laguna.com': '123', 'loshato@laguna.com': '123' };
-      accounts.forEach(a => { a.pass = KNOWN[a.email] || ''; });
-      const grid = document.getElementById('quickAccounts');
-      if (grid && accounts.length) {
-        grid.innerHTML = accounts.map(a => `
-        <button type="button" class="qa-btn" data-email="${escapeHtml(a.email)}" data-pass="${escapeHtml(a.pass)}">
-          <span class="qa-emoji">${a.emoji}</span>
-          <span class="qa-role">${a.role === 'SuperAdmin' ? 'أدمن النظام' : ('مدير ' + ({ castala: 'كريستالة', rose: 'روز', loshato: 'لوشاتو' }[a.hallId] || a.hallId))}</span>
-        </button>`).join('');
-        grid.querySelectorAll('.qa-btn').forEach(b => {
-          b.onclick = () => {
-            document.getElementById('loginEmail').value = b.dataset.email;
-            const pw = document.getElementById('loginPassword');
-            const ptw = document.getElementById('passToggle');
-            pw.value = b.dataset.pass;
-            pw.type = 'text';
-            ptw.classList.add('showing');
-            ptw.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-            flash('تم ملء الحساب — اضغط تسجيل الدخول', 'loading');
-          };
-        });
-      }
-    } catch (e) { console.warn('[auth] quick accounts:', e.message); }
   } catch (e) {
     console.warn('[auth] seed:', e.message);
   }
