@@ -10,6 +10,22 @@ function fmtDate(iso) {
 
 function monthPrefix(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
 
+// عداد متحرك للأرقام
+function animateCount(el, target, opts) {
+  opts = opts || {};
+  const isMoney = opts.money;
+  const dur = opts.dur || 800;
+  const t0 = performance.now();
+  const fmt = v => isMoney ? DB.fmt(v) : v.toLocaleString('ar-EG');
+  function tick(now) {
+    const p = Math.min(1, (now - t0) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(Math.round(target * eased));
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 (function () {
   const u = guard();
   if (!u) return;
@@ -20,46 +36,70 @@ function monthPrefix(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1
   const todayKey = DB.todayKey();
   const inDays = n => { const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 
-  Promise.all([DB.bookings.all(), DB.payments.all()]).then(([bookings, payments]) => {
+  Promise.all([DB.bookings.all(), DB.payments.all(), DB.packages.all()]).then(([bookings, payments, pkgs]) => {
     const bHall = bookings.filter(b => b.hallId === hallId && b.status !== 'canceled');
     const mBookings = bHall.filter(b => monthPrefix(new Date(b.date)) === month);
+    const packageName = id => { const p = pkgs.find(x => x.id === id); return p ? p.name : '—'; };
 
     document.getElementById('stMonthCount').textContent = mBookings.length;
     document.getElementById('stToday').textContent = bHall.filter(b => b.date === todayKey).length;
+
+    animateCount(document.getElementById('stMonthCount'), mBookings.length);
+    animateCount(document.getElementById('stToday'), bHall.filter(b => b.date === todayKey).length);
 
     const pHall = payments.filter(p => p.hallId === hallId);
     const mPay = pHall.filter(p => monthPrefix(new Date(p.date)) === month);
     const mRev = mPay.reduce((s, p) => s + Number(p.amount || 0), 0);
     const mDep = mPay.filter(p => p.type === 'deposit').reduce((s, p) => s + Number(p.amount || 0), 0);
-    document.getElementById('stMonthRev').textContent = DB.fmt(mRev);
-    document.getElementById('stDeposits').textContent = DB.fmt(mDep);
+    animateCount(document.getElementById('stMonthRev'), mRev, { money: true });
+    animateCount(document.getElementById('stDeposits'), mDep, { money: true });
 
     // ── إحصائيات إضافية ──
     const yPay = pHall.filter(p => (p.date || '').slice(0, 4) === year);
     const yRev = yPay.reduce((s, p) => s + Number(p.amount || 0), 0);
-    document.getElementById('stYearRev').textContent = DB.fmt(yRev);
+    animateCount(document.getElementById('stYearRev'), yRev, { money: true });
 
     const totals = bHall.map(b => Number(b.total || 0));
     const avg = totals.length ? totals.reduce((a, b) => a + b, 0) / totals.length : 0;
-    document.getElementById('stAvg').textContent = DB.fmt(avg);
+    animateCount(document.getElementById('stAvg'), avg, { money: true });
 
     const paidPer = {};
     pHall.forEach(p => { paidPer[p.bookingId] = (paidPer[p.bookingId] || 0) + Number(p.amount || 0); });
     const remain = bHall.reduce((s, b) => s + Math.max(0, Number(b.total || 0) - (paidPer[b.id] || 0)), 0);
-    document.getElementById('stRemain').textContent = DB.fmt(remain);
+    animateCount(document.getElementById('stRemain'), remain, { money: true });
 
     const next14 = bHall.filter(b => b.date >= todayKey && b.date <= inDays(14));
-    document.getElementById('stNext14').textContent = next14.length;
+    animateCount(document.getElementById('stNext14'), next14.length);
+
+    // ── أقرب فرح قادم (عد تنازلي) ──
+    const upcoming = bHall.filter(b => b.date >= todayKey && b.status !== 'completed').sort((a, b) => a.date.localeCompare(b.date));
+    const nextP = upcoming[0];
+    const npEl = document.getElementById('npCount');
+    if (nextP) {
+      const diffDays = Math.round((new Date(nextP.date) - now) / 86400000);
+      document.getElementById('npName').textContent = nextP.clientName;
+      document.getElementById('npMeta').textContent = fmtDate(nextP.date) + ' · ' + packageName(nextP.packageId);
+      const left = diffDays === 0 ? 'اليوم 🎉' : diffDays === 1 ? 'بعد يوم واحد' : diffDays + ' يوم';
+      const cls = diffDays <= 3 ? 'np-urgent' : '';
+      npEl.className = 'np-count ' + cls;
+      npEl.innerHTML = '<b>' + left.split(' ')[0] + '</b><span>بعد فرحك؟ لا، موعد الفرح</span>';
+      npEl.innerHTML = `<b>${left}</b><span>${diffDays === 0 ? 'موعد الفرح اليوم' : 'متبقي على الفرح'}</span>`;
+    } else {
+      document.getElementById('npName').textContent = 'لا توجد حجوزات قادمة';
+      document.getElementById('npMeta').textContent = 'احجز أول فرح من صفحة الحجوزات';
+      npEl.innerHTML = '<b>—</b><span>بدون أفراح قادمة</span>';
+    }
 
     // ── الحجوزات القادمة ──
     const up = bHall.filter(b => b.date >= todayKey && b.status !== 'completed').sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
     const upEl = document.getElementById('upcomingList');
     upEl.innerHTML = up.length ? up.map(b => {
       const diff = Math.round((new Date(b.date) - now) / 86400000);
+      const diffBadge = diff === 0 ? '<span class="badge confirmed">اليوم 🎉</span>' : diff <= 7 ? `<span class="badge pending">بعد ${diff} يوم</span>` : `<span class="badge reserved">بعد ${diff} يوم</span>`;
       return `
     <div class="flex" style="justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
-      <span><b>${escapeHtml(b.clientName)}</b><div class="muted" style="font-size:11px">${fmtDate(b.date)} ${diff >= 0 ? '· بعد ' + diff + ' يوم' : ''}</div></span>
-      <span class="badge ${STATUS_CLS[b.status]}">${STATUS_AR[b.status]}</span>
+      <span><b>${escapeHtml(b.clientName)}</b><div class="muted" style="font-size:11px">${fmtDate(b.date)}</div></span>
+      <span style="display:flex;gap:6px;align-items:center">${diffBadge}<span class="badge ${STATUS_CLS[b.status]}">${STATUS_AR[b.status]}</span></span>
     </div>`;
     }).join('') : '<div class="empty">لا توجد حجوزات قادمة</div>';
 
@@ -99,6 +139,7 @@ function monthPrefix(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1
     const max = Math.max(1, ...months.map(m => m.rev));
     document.getElementById('barChart').innerHTML = months.map(m => `
       <div class="bar-col">
+        <div class="bar-val">${m.rev ? DB.fmt(m.rev).replace(' ج.م', '') : ''}</div>
         <div class="bar" title="${DB.fmt(m.rev)}" style="height:${Math.round((m.rev / max) * 100)}%"></div>
         <span class="muted">${escapeHtml(m.label)}</span>
       </div>`).join('');
