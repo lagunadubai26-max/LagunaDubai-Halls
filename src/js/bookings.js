@@ -123,6 +123,7 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
   function openBooking(dateStr, existing) {
     editingId = existing ? existing.id : null;
     document.getElementById('bkModalTitle').textContent = existing ? 'تعديل الحجز' : 'حجز جديد';
+    document.getElementById('bkModalSub').textContent = existing ? 'تعديل بيانات الحجز المحدد' : 'تسجيل حجز ليلة زفاف في القاعة';
     document.getElementById('bkClient').value = existing ? existing.clientName : '';
     document.getElementById('bkPhone').value = existing ? (existing.clientPhone || '') : '';
     document.getElementById('bkDate').value = existing ? existing.date : dateStr;
@@ -139,7 +140,7 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
     const addonBox = document.getElementById('bkAddons');
     const sel = existing ? (existing.addonsIds || []) : [];
     addonBox.innerHTML = addons.length ? addons.map(a => `
-      <label><input type="checkbox" value="${escapeHtml(a.id)}" ${sel.includes(a.id) ? 'checked' : ''}> ${escapeHtml(a.name)} — ${DB.fmtPrice(a.price)}</label>
+      <label><input type="checkbox" value="${escapeHtml(a.id)}" ${sel.includes(a.id) ? 'checked' : ''}> <span>${escapeHtml(a.name)}</span><span class="price">${DB.fmtPrice(a.price)}</span></label>
     `).join('') : '<span class="muted" style="font-size:12px">لا توجد إضافات — أضفها من صفحة الإضافات</span>';
 
     document.getElementById('bkModal').classList.add('show');

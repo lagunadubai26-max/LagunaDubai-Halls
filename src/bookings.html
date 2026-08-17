@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=14">
-  <script src="js/role-head.js?v=14"></script>
+  <link rel="stylesheet" href="css/style.css?v=15">
+  <script src="js/role-head.js?v=15"></script>
 </head>
 <body>
   <div class="layout">
@@ -85,32 +85,54 @@
   </div>
 
   <div class="modal-bg" id="bkModal">
-    <div class="modal">
-      <h3><span id="bkModalTitle">حجز جديد</span> <i class="fa-solid fa-xmark close" id="bkClose"></i></h3>
-      <div class="form-row">
-        <div class="field"><label>اسم العميل</label><input id="bkClient" placeholder="اسم العريس / العميل"></div>
-        <div class="field"><label>رقم الهاتف</label><input id="bkPhone" placeholder="010..."></div>
+    <div class="modal bk-modal">
+      <div class="bk-head">
+        <div class="bk-head-ic"><i class="fa-solid fa-calendar-check"></i></div>
+        <div>
+          <h3 id="bkModalTitle">حجز جديد</h3>
+          <span id="bkModalSub">تسجيل حجز ليلة زفاف في القاعة</span>
+        </div>
+        <i class="fa-solid fa-xmark close" id="bkClose"></i>
       </div>
-      <div class="form-row">
-        <div class="field"><label>تاريخ الفرح</label><input type="date" id="bkDate"></div>
-        <div class="field"><label>الحالة</label><select id="bkStatus">
-          <option value="reserved">محجوز</option>
-          <option value="confirmed">مؤكد</option>
-          <option value="completed">منتهي</option>
-          <option value="canceled">ملغي</option>
-        </select></div>
+
+      <div class="bk-sec">
+        <div class="bk-sec-title"><i class="fa-solid fa-user"></i> بيانات العميل</div>
+        <div class="form-row">
+          <div class="field"><label>اسم العميل</label><input id="bkClient" placeholder="اسم العريس / العميل"></div>
+          <div class="field"><label>رقم الهاتف</label><input id="bkPhone" placeholder="010..."></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>تاريخ الفرح</label><input type="date" id="bkDate"></div>
+          <div class="field"><label>الحالة</label><select id="bkStatus">
+            <option value="reserved">محجوز</option>
+            <option value="confirmed">مؤكد</option>
+            <option value="completed">منتهي</option>
+            <option value="canceled">ملغي</option>
+          </select></div>
+        </div>
       </div>
-      <div class="form-row">
-        <div class="field"><label>الباقة</label><select id="bkPackage"></select></div>
-        <div class="field"><label>العربون (مقدم)</label><input type="number" id="bkDeposit" placeholder="0"></div>
+
+      <div class="bk-sec">
+        <div class="bk-sec-title"><i class="fa-solid fa-box-open"></i> الباقة والإضافات</div>
+        <div class="form-row">
+          <div class="field"><label>الباقة</label><select id="bkPackage"></select></div>
+          <div class="field"><label>العربون (مقدم)</label><input type="number" id="bkDeposit" placeholder="0"></div>
+        </div>
+        <div class="field"><label>الإضافات المطلوبة</label><div class="checkbox-list bk-addons" id="bkAddons"></div></div>
       </div>
-      <div class="field"><label>الإضافات المطلوبة</label><div class="checkbox-list" id="bkAddons"></div></div>
-      <div class="form-row">
-        <div class="field"><label>الإجمالي (يُحتسب تلقائياً — قابل للتعديل)</label><input type="number" id="bkTotal"></div>
-        <div class="field"><label>طريقة دفع العربون</label><select id="bkMethod"><option value="cash">نقدي</option><option value="transfer">تحويل</option></select></div>
+
+      <div class="bk-sec">
+        <div class="bk-sec-title"><i class="fa-solid fa-coins"></i> الماليات</div>
+        <div class="form-row">
+          <div class="field"><label>الإجمالي (يُحتسب تلقائياً — قابل للتعديل)</label><input type="number" id="bkTotal"></div>
+          <div class="field"><label>طريقة دفع العربون</label><select id="bkMethod"><option value="cash">نقدي</option><option value="transfer">تحويل</option></select></div>
+        </div>
+        <div class="field"><label>ملاحظات</label><textarea id="bkNotes" rows="2" placeholder="أي تفاصيل إضافية عن الحجز..."></textarea></div>
       </div>
-      <div class="field"><label>ملاحظات</label><textarea id="bkNotes" rows="2"></textarea></div>
-      <div class="flex"><div class="spacer"></div><button class="btn" id="bkSave">حفظ الحجز</button></div>
+
+      <div class="bk-foot">
+        <div class="flex"><div class="spacer"></div><button class="btn" id="bkSave"><i class="fa-solid fa-check"></i> حفظ الحجز</button></div>
+      </div>
     </div>
   </div>
 
@@ -129,12 +151,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js?v=14"></script>
-  <script src="js/firebase-client.js?v=14"></script>
-  <script src="js/sanitize.js?v=14"></script>
-  <script src="js/data.js?v=14"></script>
-  <script src="js/guard.js?v=14"></script>
-  <script src="js/role.js?v=14"></script>
-  <script src="js/bookings.js?v=14"></script>
+  <script src="js/firebase-config.js?v=15"></script>
+  <script src="js/firebase-client.js?v=15"></script>
+  <script src="js/sanitize.js?v=15"></script>
+  <script src="js/data.js?v=15"></script>
+  <script src="js/guard.js?v=15"></script>
+  <script src="js/role.js?v=15"></script>
+  <script src="js/bookings.js?v=15"></script>
 </body>
 </html>
