@@ -257,22 +257,28 @@ const DB = {
       }
     }
 
-    // باقات وإضافات وشروط كل قاعة (تُضاف إن لم توجد)
+    // باقات وإضافات وشروط كل قاعة (تُضاف إن لم توجد + ضبط ترتيب العرض sort)
     try {
       const existingPackages = await this.packages.all();
-      for (const p of SEED_PACKAGES) {
-        if (!existingPackages.find(x => x.hallId === p.hallId && x.name === p.name)) {
-          await this.packages.add({ id: 'pk_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...p, ts: Date.now() });
+      SEED_PACKAGES.forEach((p, i) => {
+        const found = existingPackages.find(x => x.hallId === p.hallId && x.name === p.name);
+        if (found) {
+          if (found.sort !== i) this.packages.update(found.id, { sort: i }).catch(() => {});
+        } else {
+          this.packages.add({ id: 'pk_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...p, sort: i, ts: Date.now() }).catch(() => {});
         }
-      }
+      });
     } catch (e) { console.warn('[seed] packages:', e.message); }
     try {
       const existingAddons = await this.addons.all();
-      for (const a of SEED_ADDONS) {
-        if (!existingAddons.find(x => x.hallId === a.hallId && x.name === a.name)) {
-          await this.addons.add({ id: 'ad_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...a, ts: Date.now() });
+      SEED_ADDONS.forEach((a, i) => {
+        const found = existingAddons.find(x => x.hallId === a.hallId && x.name === a.name);
+        if (found) {
+          if (found.sort !== i) this.addons.update(found.id, { sort: i }).catch(() => {});
+        } else {
+          this.addons.add({ id: 'ad_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...a, sort: i, ts: Date.now() }).catch(() => {});
         }
-      }
+      });
     } catch (e) { console.warn('[seed] addons:', e.message); }
     try {
       for (const hid of Object.keys(SEED_SETTINGS)) {
@@ -325,6 +331,11 @@ const DB = {
   fmt(n) {
     const num = Number(n);
     return (isNaN(num) ? 0 : num).toLocaleString('ar-EG') + ' ج.م';
+  },
+
+  // ترتيب الباقات/الإضافات حسب حقل sort (يُضبط من الـ seed)
+  bySort(list) {
+    return [...list].sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
   },
 
   // سعر قد يكون null أو غير مسجل بعد — نعرض "غير محدد"

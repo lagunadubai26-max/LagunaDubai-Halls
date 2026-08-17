@@ -29,7 +29,7 @@
   document.getElementById('delModal').onclick = e => { if (e.target.id === 'delModal') closeDel(); };
 
   async function render() {
-    const items = (await DB.packages.all()).filter(p => p.hallId === hallId);
+    const items = DB.bySort((await DB.packages.all()).filter(p => p.hallId === hallId));
     const grid = document.getElementById('pkGrid');
     if (!items.length) { grid.innerHTML = '<div class="empty">لا توجد باقات بعد — أضف أول باقة</div>'; return; }
     grid.innerHTML = items.map(p => `

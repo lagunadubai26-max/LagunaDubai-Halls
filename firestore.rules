@@ -10,17 +10,13 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/user_mappings/$(request.auth.uid)).data;
     }
 
-    function hasMapping() {
-      return getUserMapping() != null;
-    }
-
     // mapping الجديد يجب أن يطابق مستند المستخدم الفعلي (لا رفع صلاحيات)
     function mappingMatchesUser() {
       let targetUser = get(/databases/$(database)/documents/users/$(request.resource.data.userId)).data;
       return targetUser != null
         && targetUser.role == request.resource.data.role
-        && (targetUser.hallId || null) == (request.resource.data.hallId || null)
-        && (targetUser.active || 0) != 0;
+        && targetUser.hallId == request.resource.data.hallId
+        && targetUser.active == 1;
     }
 
     function userRole() {

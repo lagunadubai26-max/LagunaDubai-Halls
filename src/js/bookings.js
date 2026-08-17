@@ -30,8 +30,8 @@ const STATUS_CLS = { reserved: 'reserved', confirmed: 'confirmed', canceled: 'ca
   function loadAll() {
     return Promise.all([DB.bookings.all(), DB.packages.all(), DB.addons.all(), DB.payments.all()]).then(([b, p, a, pay]) => {
       bookings = b.filter(x => x.hallId === hallId);
-      packages = p.filter(x => x.hallId === hallId);
-      addons = a.filter(x => x.hallId === hallId);
+      packages = DB.bySort(p.filter(x => x.hallId === hallId));
+      addons = DB.bySort(a.filter(x => x.hallId === hallId));
       payments = pay.filter(x => x.hallId === hallId);
     });
   }

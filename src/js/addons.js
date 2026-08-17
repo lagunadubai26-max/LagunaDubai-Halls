@@ -29,7 +29,7 @@
   document.getElementById('delModal').onclick = e => { if (e.target.id === 'delModal') closeDel(); };
 
   async function render() {
-    const items = (await DB.addons.all()).filter(a => a.hallId === hallId);
+    const items = DB.bySort((await DB.addons.all()).filter(a => a.hallId === hallId));
     const body = document.getElementById('aBody');
     const empty = document.getElementById('aEmpty');
     if (!items.length) { body.innerHTML = ''; empty.style.display = 'block'; return; }
